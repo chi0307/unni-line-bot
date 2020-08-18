@@ -8,7 +8,6 @@ const googleSpeech = require('@google-cloud/speech');
 const googleTextToSpeech = require('@google-cloud/text-to-speech');
 const util = require('util');
 const { getAudioDurationInSeconds } = require('get-audio-duration');
-let replyMessageData = {};
 
 // 確認 env 輸入是否正確
 if (
@@ -22,8 +21,12 @@ if (
   throw 'env error';
 }
 
+// 音檔回傳 line 提供的位置
 const hostPath = process.env.HOST_PATH + (/\/$/.test(process.env.HOST_PATH) ? '' : '/');
+// 音檔下載位置（位於專案中的相對位置）
 const fileSavePath = process.env.AUDIO_FILE_SAVE_PATH;
+// { "輸入訊息": "回傳訊息" }
+let replyMessageData = {};
 
 // 確認 temp 目錄有沒有存在，不存在新增目錄
 fs.access(fileSavePath, (err) => {
@@ -63,6 +66,7 @@ const lineClient = new line.Client({
   channelSecret: process.env.LINE_CHANNEL_SECRET,
 });
 
+// Google text-to-speech speech-to-text 語言
 const languageCode = 'zh-TW';
 const speechClient = new googleSpeech.SpeechClient();
 const textToSpeechClient = new googleTextToSpeech.TextToSpeechClient();
@@ -102,9 +106,7 @@ async function speechToText(filePath) {
   };
 
   const [response] = await speechClient.recognize(request);
-  const transcription = response.results
-    .map((result) => result.alternatives[0].transcript)
-    .join('\n');
+  const transcription = response.results.map((result) => result.alternatives[0].transcript).join('\n');
   return transcription;
 }
 
@@ -138,7 +140,7 @@ function getAudioDurationInMilliSecond(filePath) {
 
 // 下載音檔，音檔轉文字，回傳字串
 async function saveLineAudioToText(audioId) {
-  let filePath = `${fileSavePath}${audioId}.m4a`;
+  let filePath = `${fileSavePath}${new Date().getTime()}.m4a`;
 
   await downloadContent(audioId, filePath);
   filePath = await audioFormatFileExtension(filePath);
@@ -166,9 +168,14 @@ async function inputAndReplyContent(inputText) {
   return replyMessageData[inputText] ? replyMessageData[inputText] : inputText;
 }
 
+app.all('*', function (req, res, next) {
+  console.log(req.method, req.url);
+  next();
+});
+
 app.post('/', async (req, res) => {
   if (req.body && req.body.events) {
-    req.body.events.forEach(async (event, index) => {
+    for (let event in req.body.events) {
       if (event.type === 'message') {
         let message = event.message;
         if (event.source.type === 'user') {
@@ -188,7 +195,7 @@ app.post('/', async (req, res) => {
               });
               break;
             case 'audio':
-              let inputText = await saveLineAudioToText(message.id);
+              inputText = await saveLineAudioToText(message.id);
 
               console.log('Google 聲音辨識為：', inputText);
               lineClient.replyMessage(replyToken, {
@@ -202,12 +209,12 @@ app.post('/', async (req, res) => {
               lineClient.pushMessage(userId, lineAudioObject);
               break;
             default:
-              console.log('message', message);
+              console.log('Other Message', message);
               break;
           }
         }
       }
-    });
+    }
     res.send();
   }
 });
