@@ -8,12 +8,55 @@ const googleSpeech = require('@google-cloud/speech');
 const googleTextToSpeech = require('@google-cloud/text-to-speech');
 const util = require('util');
 const { getAudioDurationInSeconds } = require('get-audio-duration');
+let replyMessageData = {};
+
+// 確認 env 輸入是否正確
+if (
+  !process.env.HOST_PATH ||
+  !process.env.LINE_CHANNEL_ACCESS_TOKEN ||
+  !process.env.LINE_CHANNEL_SECRET ||
+  !process.env.GOOGLE_APPLICATION_CREDENTIALS ||
+  !process.env.AUDIO_FILE_SAVE_PATH ||
+  !process.env.REPLY_MESSAGE_JSON_FILE
+) {
+  throw 'env error';
+}
+
+const hostPath = process.env.HOST_PATH + (/\/$/.test(process.env.HOST_PATH) ? '' : '/');
+const fileSavePath = process.env.AUDIO_FILE_SAVE_PATH;
+
+// 確認 temp 目錄有沒有存在，不存在新增目錄
+fs.access(fileSavePath, (err) => {
+  if (err && err.code == 'ENOENT') {
+    fs.mkdir(fileSavePath, {}, (err) => {
+      if (err) throw err;
+    });
+  }
+});
+
+// 確認 google credentials 檔案是否存在
+fs.access(process.env.GOOGLE_APPLICATION_CREDENTIALS, (err) => {
+  if (err) {
+    throw err;
+  }
+});
+
+// 確認 回覆字串是否存在
+fs.access(process.env.REPLY_MESSAGE_JSON_FILE, (err) => {
+  if (err) {
+    throw err;
+  } else {
+    fs.readFile(process.env.REPLY_MESSAGE_JSON_FILE, (err, data) => {
+      if (err) throw err;
+      replyMessageData = JSON.parse(data.toString());
+    });
+  }
+});
 
 const app = express();
+const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-const hostPath = process.env.HOST_PATH + (/\/$/.test(process.env.HOST_PATH) ? '' : '/');
-const fileSavePath = './temp/';
 
 const lineClient = new line.Client({
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
@@ -120,10 +163,7 @@ async function textToLineAudioObject(replyText) {
 
 // 暫時性確認 輸入文字 回傳文字
 async function inputAndReplyContent(inputText) {
-  let obj = {
-    哈囉你好嗎: '誠心感謝 珍重再見 期待再相逢',
-  };
-  return obj[inputText] ? obj[inputText] : inputText;
+  return replyMessageData[inputText] ? replyMessageData[inputText] : inputText;
 }
 
 app.post('/', async (req, res) => {
@@ -174,6 +214,6 @@ app.post('/', async (req, res) => {
 
 app.use('/temp', express.static(path.join(__dirname, 'temp')));
 
-app.listen(3000, () => {
-  console.log('Open http://localhost:3000');
+app.listen(port, () => {
+  console.log(`Open http://localhost:${port}`);
 });
