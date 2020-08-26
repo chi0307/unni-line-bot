@@ -58,7 +58,8 @@ class LineController {
                 console.log('回覆為：', replyText);
 
                 let lineAudioObject = await STTAndTTS.textConvertToAudioAndComposeLineAudioObject(replyText);
-                lineClient.pushMessage(userId, lineAudioObject);
+                // lineClient.pushMessage(userId, lineAudioObject);
+                lineClient.replyMessage(replyToken, lineAudioObject);
                 break;
               default:
                 console.log('Other Message', message);
