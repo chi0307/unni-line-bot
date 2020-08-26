@@ -4,9 +4,9 @@
   "areas": [
     [
       {
-        "type": "postback",
-        "label": "吸貓",
-        "data": "catImage"
+        "type": "message",
+        "label": "我要吸貓",
+        "text": "我要吸貓"
       },
       {
         "type": "message",

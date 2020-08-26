@@ -40,12 +40,15 @@ class LineController {
               case 'text':
                 inputText = message.text;
 
-                replyText = `Reply: ${inputText}`;
+                if (/(吸貓|貓貓|貓咪|喵咪|屁貓|笨貓|胖貓)/.test(inputText)) {
+                  let image = await GooglePhotos.getImage();
 
-                lineClient.replyMessage(replyToken, {
-                  type: 'text',
-                  text: replyText,
-                });
+                  lineClient.replyMessage(replyToken, {
+                    type: 'image',
+                    originalContentUrl: image,
+                    previewImageUrl: image,
+                  });
+                }
                 break;
               case 'audio':
                 inputText = await STTAndTTS.saveLineAudioAndConvertToText(message.id);
@@ -63,15 +66,6 @@ class LineController {
             }
           }
         } else if (event.type === 'postback') {
-          if (event.postback.data === 'catImage') {
-            let image = await GooglePhotos.getImage();
-
-            lineClient.replyMessage(replyToken, {
-              type: 'image',
-              originalContentUrl: image,
-              previewImageUrl: image,
-            });
-          }
         }
       }
       res.send();
