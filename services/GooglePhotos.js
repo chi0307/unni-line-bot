@@ -2,8 +2,6 @@ const axios = require('axios');
 
 const GoogleCloud = require('./GoogleCloud.js');
 
-const token_path = process.env.TOKEN_PATH;
-
 class GooglePhotos {
   async getImage() {
     let images = [];

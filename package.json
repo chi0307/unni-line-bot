@@ -20,6 +20,7 @@
     "express": "^4.17.1",
     "get-audio-duration": "^2.0.3",
     "googleapis": "^59.0.0",
-    "linear16": "^1.2.0"
+    "linear16": "^1.2.0",
+    "redis": "^3.0.2"
   }
 }

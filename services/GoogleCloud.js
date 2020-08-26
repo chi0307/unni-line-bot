@@ -1,23 +1,21 @@
 const fs = require('fs');
 const { google } = require('googleapis');
 
-const token_path = process.env.TOKEN_PATH;
+const Redis = require('./Reids.js');
 
 const SCOPES = ['https://www.googleapis.com/auth/photoslibrary'];
-const redirect_uri = process.env.GOOGLE_REDIRECT_URI
+const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI
   ? process.env.GOOGLE_REDIRECT_URI
   : `${process.env.HOST_PATH}${/\/$/.test(process.env.HOST_PATH) ? '' : '/'}api/setAccessToken`;
-const client_secret = process.env.GOOGLE_CLIENT_SECRET;
-const client_id = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 
 function authorize() {
   return new Promise((resolve, reject) => {
-    const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uri);
-    fs.readFile(token_path, async (err, string) => {
-      if (err) {
-        reject(err);
-      } else {
-        let token = JSON.parse(string);
+    const oAuth2Client = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI);
+    Redis.get('google_token').then((token) => {
+      if (token) {
+        token = JSON.parse(token);
         let origin_scope = SCOPES;
         let currently_scope = token.scope.split(' ');
         origin_scope = origin_scope.sort((a, b) => (a > b ? 1 : -1)).join(' ');
@@ -28,14 +26,17 @@ function authorize() {
         } else {
           reject('modify scope');
         }
+      } else {
+        reject('no token');
       }
     });
   }).then(
     (oAuth2Client) => {
+      Redis.quit();
       return oAuth2Client;
     },
     (error) => {
-      console.log('not token');
+      console.log(error);
       return null;
     }
   );
@@ -43,7 +44,7 @@ function authorize() {
 
 class GoogleCloud {
   getAccessUrl() {
-    const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uri);
+    const oAuth2Client = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI);
     const authUrl = oAuth2Client.generateAuthUrl({
       access_type: 'offline',
       prompt: 'consent',
@@ -53,24 +54,21 @@ class GoogleCloud {
   }
 
   async setAccessToken({ code }) {
-    const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uri);
+    const oAuth2Client = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI);
     return new Promise((resolve, reject) => {
       oAuth2Client.getToken(code, async (err, token) => {
         if (err) {
           reject(err);
         } else {
-          fs.writeFile(token_path, JSON.stringify(token, null, 2), (err) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve();
-            }
+          Redis.set('google_token', JSON.stringify(token, null, 2)).then((key) => {
+            resolve();
           });
         }
       });
     }).then(
       () => {
-        console.log('Token stored to', token_path);
+        Redis.quit();
+        console.log('Token stored to Redis');
         return 'success';
       },
       (err) => {
@@ -90,14 +88,16 @@ class GoogleCloud {
   }
 
   getAccessToken() {
-    let token = fs.readFileSync(token_path);
-    token = JSON.parse(token.toString());
-    return token;
+    return Redis.get('google_token').then((token) => {
+      Redis.quit();
+      token = JSON.parse(token);
+      return token;
+    });
   }
 
   async refreshAccessToken() {
-    let token = this.getAccessToken();
-    const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uri);
+    let token = await this.getAccessToken();
+    const oAuth2Client = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI);
     oAuth2Client.setCredentials({
       refresh_token: token.refresh_token,
     });
@@ -106,10 +106,8 @@ class GoogleCloud {
     });
 
     if (token) {
-      fs.writeFile(token_path, JSON.stringify(token, null, 2), (err) => {
-        if (err) {
-          console.error(err);
-        }
+      Redis.set('google_token', JSON.stringify(token, null, 2)).then((key) => {
+        Redis.quit();
       });
     }
 

@@ -29,14 +29,13 @@ class LineController {
   async index(req, res) {
     if (req.body && req.body.events) {
       for (let event of req.body.events) {
-        let userId = event.source.userId;
+        let userId = event.source.userId,
+          replyToken = event.replyToken;
 
         if (event.type === 'message') {
           let message = event.message;
           if (event.source.type === 'user') {
-            let replyToken = event.replyToken,
-              inputText,
-              replyText;
+            let inputText, replyText;
             switch (message.type) {
               case 'text':
                 inputText = message.text;
@@ -67,7 +66,7 @@ class LineController {
           if (event.postback.data === 'catImage') {
             let image = await GooglePhotos.getImage();
 
-            lineClient.pushMessage(userId, {
+            lineClient.replyMessage(replyToken, {
               type: 'image',
               originalContentUrl: image,
               previewImageUrl: image,
