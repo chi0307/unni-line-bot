@@ -4,6 +4,8 @@ const line = require('@line/bot-sdk');
 const STTAndTTS = require('../services/STTAndTTS');
 const GooglePhotos = require('../services/GooglePhotos');
 const GoogleCloud = require('../services/GoogleCloud');
+const dryTalks = require('../data/dryTalks.json');
+const loveTalks = require('../data/loveTalks.json');
 
 const lineClient = new line.Client({
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
@@ -12,17 +14,36 @@ const lineClient = new line.Client({
 
 const junchiUserId = 'Ua4df45e4a80fb8b9a2bdcb5383408acc';
 
-// 從 line 下載檔案
-function downloadContent(messageId, downloadPath) {
-  return lineClient.getMessageContent(messageId).then(
-    (stream) =>
-      new Promise((resolve, reject) => {
-        const writable = fs.createWriteStream(downloadPath);
-        stream.pipe(writable);
-        stream.on('end', () => resolve(downloadPath));
-        stream.on('error', reject);
-      })
-  );
+async function getReturnMessages(inputText) {
+  let messages;
+  if (/(貓|喵)/.test(inputText)) {
+    let image = await GooglePhotos.getImage();
+    messages = [
+      {
+        type: 'image',
+        originalContentUrl: image,
+        previewImageUrl: image,
+      },
+    ];
+  } else if (/(幹話|屁話)/.test(inputText)) {
+    let index = Math.floor(Math.random() * dryTalks.length);
+    messages = [
+      {
+        type: 'text',
+        text: dryTalks[index],
+      },
+    ];
+  } else if (/(情話)/.test(inputText)) {
+    let index = Math.floor(Math.random() * loveTalks.length);
+    messages = [
+      {
+        type: 'text',
+        text: loveTalks[index],
+      },
+    ];
+  }
+
+  return messages;
 }
 
 class LineController {
@@ -38,36 +59,43 @@ class LineController {
             let message = event.message;
             let inputText, replyText;
             switch (message.type) {
-              case 'text':
+              case 'text': {
                 inputText = message.text;
 
-                if (/(貓|喵)/.test(inputText)) {
-                  let image = await GooglePhotos.getImage();
-
-                  resolve([
-                    {
-                      type: 'image',
-                      originalContentUrl: image,
-                      previewImageUrl: image,
-                    },
-                  ]);
+                let messages = await getReturnMessages(inputText);
+                if (messages) {
+                  resolve(messages);
                 } else {
                   reject();
                 }
                 break;
-              case 'audio':
+              }
+              case 'audio': {
                 inputText = await STTAndTTS.saveLineAudioAndConvertToText(message.id);
 
                 console.log('Google 聲音辨識為：', inputText);
-                replyText = await STTAndTTS.inputAndReplyContent(inputText);
-                console.log('回覆為：', replyText);
-
-                let lineAudioObject = await STTAndTTS.textConvertToAudioAndComposeLineAudioObject(replyText);
-                resolve([lineAudioObject]);
+                let messages = await getReturnMessages(inputText),
+                  replyText;
+                if (messages) {
+                  for (let index in messages) {
+                    let message = messages[index];
+                    if (message.type === 'text') {
+                      console.log('回覆為：', message.text);
+                      let lineAudioObject = await STTAndTTS.textConvertToAudioAndComposeLineAudioObject(message.text);
+                      messages[index] = lineAudioObject;
+                    }
+                  }
+                  resolve(messages);
+                } else {
+                  let lineAudioObject = await STTAndTTS.textConvertToAudioAndComposeLineAudioObject(inputText);
+                  resolve([lineAudioObject]);
+                }
                 break;
-              default:
+              }
+              default: {
                 reject();
                 break;
+              }
             }
           } else {
             reject();

@@ -14,10 +14,21 @@ const textToSpeechClient = new googleTextToSpeech.TextToSpeechClient();
 const hostPath = process.env.HOST_PATH + (/\/$/.test(process.env.HOST_PATH) ? '' : '/');
 // 音檔下載位置（位於專案中的相對位置）
 const fileSavePath = './public/file/';
-// { "輸入訊息": "回傳訊息" }
-let replyMessageData = {};
 
 class STTAndTTS {
+  // 從 line 下載檔案
+  downloadContent(messageId, downloadPath) {
+    return lineClient.getMessageContent(messageId).then(
+      (stream) =>
+        new Promise((resolve, reject) => {
+          const writable = fs.createWriteStream(downloadPath);
+          stream.pipe(writable);
+          stream.on('end', () => resolve(downloadPath));
+          stream.on('error', reject);
+        })
+    );
+  }
+
   // 音檔轉換 m4a To linear16
   audioFormatFileExtension(inputPath, outputPath = inputPath.replace(/\.\w*$/, '.wav')) {
     return linear16(inputPath, outputPath);
@@ -50,13 +61,13 @@ class STTAndTTS {
   async saveLineAudioAndConvertToText(audioId) {
     let filePath = `${fileSavePath}${new Date().getTime()}.m4a`;
 
-    await downloadContent(audioId, filePath);
-    let audioMilliSecond = await getAudioDurationInMilliSecond(filePath);
-    filePath = await audioFormatFileExtension(filePath);
+    await this.downloadContent(audioId, filePath);
+    let audioMilliSecond = await this.getAudioDurationInMilliSecond(filePath);
+    filePath = await this.audioFormatFileExtension(filePath);
 
-    let inputText = await speechToText(filePath, audioMilliSecond);
-    deleteFile(filePath);
-    deleteFile(filePath.replace(/\.wav$/, '.m4a'));
+    let inputText = await this.speechToText(filePath, audioMilliSecond);
+    this.deleteFile(filePath);
+    this.deleteFile(filePath.replace(/\.wav$/, '.m4a'));
     return inputText;
   }
 
@@ -65,20 +76,15 @@ class STTAndTTS {
     let fileName = `${new Date().getTime()}-output.mp3`;
     let filePath = `${fileSavePath}${fileName}`;
 
-    let audioContent = await textToSpeech(replyText);
-    await saveAudio(audioContent, filePath);
-    let audioDuration = await getAudioDurationInMilliSecond(filePath);
+    let audioContent = await this.textToSpeech(replyText);
+    await this.saveAudio(audioContent, filePath);
+    let audioDuration = await this.getAudioDurationInMilliSecond(filePath);
 
     return {
       type: 'audio',
       originalContentUrl: `${hostPath}file/${fileName}`,
       duration: audioDuration,
     };
-  }
-
-  // 輸入文字與回傳文字
-  async inputAndReplyContent(inputText) {
-    return replyMessageData[inputText] ? replyMessageData[inputText] : inputText;
   }
 
   // Google 轉換 speech To text（小於等於一分鐘的音檔）
