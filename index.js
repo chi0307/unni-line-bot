@@ -40,7 +40,7 @@ app.listen(port, () => {
 });
 
 // 確認 google 認證是否失效
-const GooglePhotos = require('./services/GooglePhotos.js');
+const LineController = require('./controllers/LineController.js');
 setTimeout(() => {
-  GooglePhotos.getImage();
+  LineController.checkAccessToken();
 }, 2000);

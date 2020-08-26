@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "yarn && node index.js",
-    "dev": "yarn && nodemon index.js",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
     "clear": "rm -rf ./temp/*"
   },
   "keywords": [],
