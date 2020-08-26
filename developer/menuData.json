@@ -1,0 +1,40 @@
+{
+  "name": "catMenu",
+  "chatBarText": "奴才區",
+  "areas": [
+    [
+      {
+        "type": "postback",
+        "label": "吸貓",
+        "data": "catImage"
+      },
+      {
+        "type": "message",
+        "label": "null",
+        "text": "null"
+      },
+      {
+        "type": "message",
+        "label": "null",
+        "text": "null"
+      }
+    ],
+    [
+      {
+        "type": "message",
+        "label": "null",
+        "text": "null"
+      },
+      {
+        "type": "message",
+        "label": "null",
+        "text": "null"
+      },
+      {
+        "type": "message",
+        "label": "null",
+        "text": "null"
+      }
+    ]
+  ]
+}

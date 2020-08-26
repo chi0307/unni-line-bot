@@ -1,9 +1,8 @@
-.env
-credentials.json
+!.env
+!credentials.json
 .DS_Store
 
 node_modules/
-dist/*
-temp/*
+token/*
 
 !.gitkeep
