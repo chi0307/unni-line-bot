@@ -30,41 +30,40 @@ class LineController {
     if (req.body && req.body.events) {
       for (let event of req.body.events) {
         let userId = event.source.userId,
-          replyToken = event.replyToken;
+          replyToken = event.replyToken,
+          sourceType = event.source.type;
 
         if (event.type === 'message') {
           let message = event.message;
-          if (event.source.type === 'user') {
-            let inputText, replyText;
-            switch (message.type) {
-              case 'text':
-                inputText = message.text;
+          let inputText, replyText;
+          switch (message.type) {
+            case 'text':
+              inputText = message.text;
 
-                if (/(吸貓|貓貓|貓咪|喵咪|屁貓|笨貓|胖貓)/.test(inputText)) {
-                  let image = await GooglePhotos.getImage();
+              if (/(吸貓|貓貓|貓咪|喵咪|屁貓|笨貓|胖貓)/.test(inputText)) {
+                let image = await GooglePhotos.getImage();
 
-                  lineClient.replyMessage(replyToken, {
-                    type: 'image',
-                    originalContentUrl: image,
-                    previewImageUrl: image,
-                  });
-                }
-                break;
-              case 'audio':
-                inputText = await STTAndTTS.saveLineAudioAndConvertToText(message.id);
+                lineClient.replyMessage(replyToken, {
+                  type: 'image',
+                  originalContentUrl: image,
+                  previewImageUrl: image,
+                });
+              }
+              break;
+            case 'audio':
+              inputText = await STTAndTTS.saveLineAudioAndConvertToText(message.id);
 
-                console.log('Google 聲音辨識為：', inputText);
-                replyText = await STTAndTTS.inputAndReplyContent(inputText);
-                console.log('回覆為：', replyText);
+              console.log('Google 聲音辨識為：', inputText);
+              replyText = await STTAndTTS.inputAndReplyContent(inputText);
+              console.log('回覆為：', replyText);
 
-                let lineAudioObject = await STTAndTTS.textConvertToAudioAndComposeLineAudioObject(replyText);
-                // lineClient.pushMessage(userId, lineAudioObject);
-                lineClient.replyMessage(replyToken, lineAudioObject);
-                break;
-              default:
-                console.log('Other Message', message);
-                break;
-            }
+              let lineAudioObject = await STTAndTTS.textConvertToAudioAndComposeLineAudioObject(replyText);
+              // lineClient.pushMessage(userId, lineAudioObject);
+              lineClient.replyMessage(replyToken, lineAudioObject);
+              break;
+            default:
+              console.log('Other Message', message);
+              break;
           }
         } else if (event.type === 'postback') {
         }
