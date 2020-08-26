@@ -4,6 +4,12 @@ const linear16 = require('linear16');
 const { getAudioDurationInSeconds } = require('get-audio-duration');
 const googleSpeech = require('@google-cloud/speech');
 const googleTextToSpeech = require('@google-cloud/text-to-speech');
+const line = require('@line/bot-sdk');
+
+const lineClient = new line.Client({
+  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
+  channelSecret: process.env.LINE_CHANNEL_SECRET,
+});
 
 // Google text-to-speech speech-to-text 語言
 const languageCode = 'zh-TW';
