@@ -19,7 +19,7 @@ const textToSpeechClient = new googleTextToSpeech.TextToSpeechClient();
 // 音檔回傳 line 提供的位置
 const hostPath = process.env.HOST_PATH + (/\/$/.test(process.env.HOST_PATH) ? '' : '/');
 // 音檔下載位置（位於專案中的相對位置）
-const fileSavePath = './public/file/';
+const fileSavePath = './public/files/';
 
 class STTAndTTS {
   // 從 line 下載檔案
@@ -88,7 +88,7 @@ class STTAndTTS {
 
     return {
       type: 'audio',
-      originalContentUrl: `${hostPath}file/${fileName}`,
+      originalContentUrl: `${hostPath}files/${fileName}`,
       duration: audioDuration,
     };
   }

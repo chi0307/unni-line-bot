@@ -1,26 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
-const fs = require('fs');
 
 const apiRouter = require('./routes/api');
-
-// 確認 env 輸入是否正確
-if (
-  !process.env.HOST_PATH ||
-  !process.env.LINE_CHANNEL_ACCESS_TOKEN ||
-  !process.env.LINE_CHANNEL_SECRET ||
-  !process.env.GOOGLE_APPLICATION_CREDENTIALS
-) {
-  throw 'env error';
-}
-
-// 確認 google credentials 檔案是否存在
-fs.access(process.env.GOOGLE_APPLICATION_CREDENTIALS, (err) => {
-  if (err) {
-    throw err;
-  }
-});
 
 const app = express();
 const port = process.env.PORT || 3000;

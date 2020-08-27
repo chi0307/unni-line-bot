@@ -47,8 +47,8 @@ const menuSize = [
 
 async function createMenu() {
   let count = menuData.areas.length * menuData.areas[0].length;
-  const { width, height, itemWidth, itemHeight } = menuSize[count];
-  const richmenu = {
+  let { width, height, itemWidth, itemHeight } = menuSize[count];
+  let richmenu = {
     size: {
       width: width,
       height: height,
@@ -59,9 +59,8 @@ async function createMenu() {
     areas: [],
   };
   for (let index in menuData.areas) {
-    let areas = menuData.areas[index];
-    for (let index2 in areas) {
-      let area = areas[index2];
+    for (let index2 in menuData.areas[index]) {
+      let area = menuData.areas[index][index2];
       richmenu.areas.push({
         bounds: {
           x: itemHeight * index2,
@@ -69,7 +68,7 @@ async function createMenu() {
           width: itemWidth,
           height: itemHeight,
         },
-        action: menuData.areas[index][index2],
+        action: area,
       });
     }
   }
