@@ -15,35 +15,31 @@ const lineClient = new line.Client({
 const junchiUserId = 'Ua4df45e4a80fb8b9a2bdcb5383408acc';
 
 async function getReturnMessages(inputText) {
-  let messages;
-  if (/(貓|喵)/.test(inputText)) {
+  let messages = [];
+  if (/(貓|喵|污泥|烏泥)/.test(inputText)) {
     let image = await GooglePhotos.getImage();
-    messages = [
-      {
-        type: 'image',
-        originalContentUrl: image,
-        previewImageUrl: image,
-      },
-    ];
-  } else if (/(幹話|屁話|心情不好)/.test(inputText)) {
+    messages.push({
+      type: 'image',
+      originalContentUrl: image,
+      previewImageUrl: image,
+    });
+  }
+  if (/(幹話|屁話|心情不好|不爽)/.test(inputText)) {
     let index = Math.floor(Math.random() * dryTalks.length);
-    messages = [
-      {
-        type: 'text',
-        text: dryTalks[index],
-      },
-    ];
-  } else if (/(情話)/.test(inputText)) {
+    messages.push({
+      type: 'text',
+      text: dryTalks[index],
+    });
+  }
+  if (/(情話|撩)/.test(inputText)) {
     let index = Math.floor(Math.random() * loveTalks.length);
-    messages = [
-      {
-        type: 'text',
-        text: loveTalks[index],
-      },
-    ];
+    messages.push({
+      type: 'text',
+      text: loveTalks[index],
+    });
   }
 
-  return messages;
+  return messages.length > 0 ? messages : null;
 }
 
 class LineController {
