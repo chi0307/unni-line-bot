@@ -10,74 +10,69 @@ const client = new line.Client({
 const menuData = require('./menuData.json');
 let richMenuId;
 
+const menuSize = [
+  {},
+  {
+    width: 2400,
+    height: 800,
+    itemWidth: 800,
+    itemHeight: 800,
+  },
+  {
+    width: 2400,
+    height: 800,
+    itemWidth: 1200,
+    itemHeight: 800,
+  },
+  {
+    width: 2400,
+    height: 800,
+    itemWidth: 800,
+    itemHeight: 800,
+  },
+  {
+    width: 2400,
+    height: 1600,
+    itemWidth: 1200,
+    itemHeight: 800,
+  },
+  {},
+  {
+    width: 2400,
+    height: 1600,
+    itemWidth: 800,
+    itemHeight: 800,
+  },
+];
+
 async function createMenu() {
-  const width = 800;
-  const height = 800;
+  let count = menuData.areas.length * menuData.areas[0].length;
+  const { width, height, itemWidth, itemHeight } = menuSize[count];
   const richmenu = {
     size: {
-      width: 2400,
-      height: 1600,
+      width: width,
+      height: height,
     },
     selected: false,
     name: menuData.name,
     chatBarText: menuData.chatBarText,
-    areas: [
-      {
-        bounds: {
-          x: 0,
-          y: 0,
-          width: width,
-          height: height,
-        },
-        action: menuData.areas[0][0],
-      },
-      {
-        bounds: {
-          x: 800,
-          y: 0,
-          width: width,
-          height: height,
-        },
-        action: menuData.areas[0][1],
-      },
-      {
-        bounds: {
-          x: 1600,
-          y: 0,
-          width: width,
-          height: height,
-        },
-        action: menuData.areas[0][2],
-      },
-      {
-        bounds: {
-          x: 0,
-          y: 800,
-          width: width,
-          height: height,
-        },
-        action: menuData.areas[1][0],
-      },
-      {
-        bounds: {
-          x: 800,
-          y: 800,
-          width: width,
-          height: height,
-        },
-        action: menuData.areas[1][1],
-      },
-      {
-        bounds: {
-          x: 1600,
-          y: 800,
-          width: width,
-          height: height,
-        },
-        action: menuData.areas[1][2],
-      },
-    ],
+    areas: [],
   };
+  for (let index in menuData.areas) {
+    let areas = menuData.areas[index];
+    for (let index2 in areas) {
+      let area = areas[index2];
+      richmenu.areas.push({
+        bounds: {
+          x: itemHeight * index2,
+          y: itemWidth * index,
+          width: itemWidth,
+          height: itemHeight,
+        },
+        action: menuData.areas[index][index2],
+      });
+    }
+  }
 
   await client.createRichMenu(richmenu).then((id) => {
     richMenuId = id;
@@ -104,6 +99,7 @@ async function setDefaultMenu() {
 }
 
 async function clearMenuList() {
+  console.log('clear menu');
   client.getRichMenuList().then((richmenus) => {
     for (let richmenu of richmenus) {
       client.deleteRichMenu(richmenu.richMenuId);

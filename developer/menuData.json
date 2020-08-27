@@ -18,23 +18,6 @@
         "label": "想聽情話",
         "text": "想聽情話"
       }
-    ],
-    [
-      {
-        "type": "message",
-        "label": "null",
-        "text": "null"
-      },
-      {
-        "type": "message",
-        "label": "null",
-        "text": "null"
-      },
-      {
-        "type": "message",
-        "label": "null",
-        "text": "null"
-      }
     ]
   ]
 }
