@@ -25,7 +25,7 @@ async function getReturnMessages(inputText) {
         previewImageUrl: image,
       },
     ];
-  } else if (/(幹話|屁話)/.test(inputText)) {
+  } else if (/(幹話|屁話|心情不好)/.test(inputText)) {
     let index = Math.floor(Math.random() * dryTalks.length);
     messages = [
       {
