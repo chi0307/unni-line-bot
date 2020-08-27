@@ -46,7 +46,7 @@ class LineController {
   index(req, res) {
     if (req.body && req.body.events) {
       for (let event of req.body.events) {
-        let userId = event.source.userId,
+        let { userId, groupId, roomId } = event.source,
           replyToken = event.replyToken,
           sourceType = event.source.type;
 
@@ -83,8 +83,7 @@ class LineController {
                   }
                   resolve(messages);
                 } else {
-                  let lineAudioObject = await STTAndTTS.textConvertToAudioAndComposeLineAudioObject(inputText);
-                  resolve([lineAudioObject]);
+                  reject();
                 }
                 break;
               }
@@ -103,7 +102,15 @@ class LineController {
               if (index === '0') {
                 lineClient.replyMessage(replyToken, message);
               } else {
-                lineClient.pushMessage(userId, message);
+                if (sourceType === 'group') {
+                  lineClient.pushMessage(groupId, message);
+                } else if (sourceType === 'room') {
+                  lineClient.pushMessage(roomId, message);
+                } else if (sourceType === 'user') {
+                  lineClient.pushMessage(userId, message);
+                } else {
+                  reject();
+                }
               }
             }
           })
