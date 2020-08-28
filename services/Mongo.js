@@ -6,7 +6,7 @@ let client;
 
 class Mongo {
   async connect() {
-    client = new MongoClient(uri, { useNewUrlParser: true });
+    client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     await client.connect();
   }
 

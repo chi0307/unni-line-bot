@@ -17,7 +17,7 @@ const junchiUserId = 'Ua4df45e4a80fb8b9a2bdcb5383408acc';
 async function getReturnMessages(inputText) {
   let messages = [];
   if (/(貓|喵|污泥|烏泥)/.test(inputText)) {
-    let image = await GooglePhotos.getImage();
+    let image = await GooglePhotos.getImages();
     messages.push({
       type: 'image',
       originalContentUrl: image,
