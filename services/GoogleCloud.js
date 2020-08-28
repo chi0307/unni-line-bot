@@ -32,7 +32,6 @@ function authorize() {
     });
   }).then(
     (oAuth2Client) => {
-      Redis.quit();
       return oAuth2Client;
     },
     (error) => {
@@ -67,7 +66,6 @@ class GoogleCloud {
       });
     }).then(
       () => {
-        Redis.quit();
         console.log('Token stored to Redis');
         return 'success';
       },
@@ -89,7 +87,6 @@ class GoogleCloud {
 
   getAccessToken() {
     return Redis.get('google_token').then((token) => {
-      Redis.quit();
       token = JSON.parse(token);
       return token;
     });
@@ -106,9 +103,7 @@ class GoogleCloud {
     });
 
     if (token) {
-      Redis.set('google_token', JSON.stringify(token, null, 2)).then((key) => {
-        Redis.quit();
-      });
+      Redis.set('google_token', JSON.stringify(token, null, 2));
     }
 
     return token;

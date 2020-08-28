@@ -12,6 +12,10 @@ class Redis {
     });
   }
 
+  quit() {
+    redisClient.quit();
+  }
+
   get(key) {
     this.connect();
     return new Promise((resolve, reject) => {
@@ -23,6 +27,8 @@ class Redis {
           resolve(result);
         }
       });
+    }).finally(() => {
+      this.quit();
     });
   }
 
@@ -37,11 +43,9 @@ class Redis {
           resolve(key);
         }
       });
+    }).finally(() => {
+      this.quit();
     });
-  }
-
-  quit() {
-    redisClient.quit();
   }
 }
 
