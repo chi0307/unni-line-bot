@@ -4,39 +4,15 @@ const linear16 = require('linear16');
 const { getAudioDurationInSeconds } = require('get-audio-duration');
 const googleSpeech = require('@google-cloud/speech');
 const googleTextToSpeech = require('@google-cloud/text-to-speech');
-const line = require('@line/bot-sdk');
-
-const lineClient = new line.Client({
-  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
-  channelSecret: process.env.LINE_CHANNEL_SECRET,
-});
 
 // Google text-to-speech speech-to-text 語言
 const languageCode = 'zh-TW';
 const speechClient = new googleSpeech.SpeechClient();
 const textToSpeechClient = new googleTextToSpeech.TextToSpeechClient();
 
-// 音檔回傳 line 提供的位置
-const hostPath = process.env.HOST_PATH + (/\/$/.test(process.env.HOST_PATH) ? '' : '/');
-// 音檔下載位置（位於專案中的相對位置）
-const fileSavePath = './public/files/';
-
-class STTAndTTS {
-  // 從 line 下載檔案
-  downloadContent(messageId, downloadPath) {
-    return lineClient.getMessageContent(messageId).then(
-      (stream) =>
-        new Promise((resolve, reject) => {
-          const writable = fs.createWriteStream(downloadPath);
-          stream.pipe(writable);
-          stream.on('end', () => resolve(downloadPath));
-          stream.on('error', reject);
-        })
-    );
-  }
-
+class GoogleSttAndTts {
   // 音檔轉換 m4a To linear16
-  audioFormatFileExtension(inputPath, outputPath = inputPath.replace(/\.\w*$/, '.wav')) {
+  audioFormatFileExtension(inputPath, outputPath) {
     return linear16(inputPath, outputPath);
   }
 
@@ -61,36 +37,6 @@ class STTAndTTS {
     fs.unlink(filePath, (err) => {
       if (err) console.error(err);
     });
-  }
-
-  // 下載音檔，音檔轉文字，回傳字串
-  async saveLineAudioAndConvertToText(audioId) {
-    let filePath = `${fileSavePath}${new Date().getTime()}.m4a`;
-
-    await this.downloadContent(audioId, filePath);
-    let audioMilliSecond = await this.getAudioDurationInMilliSecond(filePath);
-    filePath = await this.audioFormatFileExtension(filePath);
-
-    let inputText = await this.speechToText(filePath, audioMilliSecond);
-    this.deleteFile(filePath);
-    this.deleteFile(filePath.replace(/\.wav$/, '.m4a'));
-    return inputText;
-  }
-
-  // 文字轉音檔，回傳 line audio object
-  async textConvertToAudioAndComposeLineAudioObject(replyText) {
-    let fileName = `${new Date().getTime()}-output.mp3`;
-    let filePath = `${fileSavePath}${fileName}`;
-
-    let audioContent = await this.textToSpeech(replyText);
-    await this.saveAudio(audioContent, filePath);
-    let audioDuration = await this.getAudioDurationInMilliSecond(filePath);
-
-    return {
-      type: 'audio',
-      originalContentUrl: `${hostPath}files/${fileName}`,
-      duration: audioDuration,
-    };
   }
 
   // Google 轉換 speech To text（小於等於一分鐘的音檔）
@@ -159,4 +105,4 @@ class STTAndTTS {
   }
 }
 
-module.exports = new STTAndTTS();
+module.exports = new GoogleSttAndTts();
