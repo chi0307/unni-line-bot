@@ -1,7 +1,6 @@
-const fs = require('fs');
 const { google } = require('googleapis');
 
-const Redis = require('./Reids.js');
+const Redis = require('./Redis');
 
 const SCOPES = ['https://www.googleapis.com/auth/photoslibrary'];
 const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI
@@ -78,11 +77,8 @@ class GoogleCloud {
 
   async checkAccessToken() {
     let auth = await authorize();
-    if (auth) {
-      return true;
-    } else {
-      return false;
-    }
+    let url = await this.getAccessUrl();
+    return auth ? null : url;
   }
 
   getAccessToken() {

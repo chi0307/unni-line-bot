@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const GoogleCloud = require('./GoogleCloud.js');
+const GoogleCloud = require('./GoogleCloud');
 
 class GooglePhotos {
   async getImages() {
@@ -37,9 +37,7 @@ class GooglePhotos {
     }
 
     images = images.map((image) => image.baseUrl);
-
-    let imageIndex = Math.floor(Math.random() * images.length);
-    return images[imageIndex];
+    return images;
   }
 }
 module.exports = new GooglePhotos();

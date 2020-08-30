@@ -1,44 +1,10 @@
 const fs = require('fs');
-const util = require('util');
-const linear16 = require('linear16');
-const { getAudioDurationInSeconds } = require('get-audio-duration');
 const googleSpeech = require('@google-cloud/speech');
-const googleTextToSpeech = require('@google-cloud/text-to-speech');
 
-// Google text-to-speech speech-to-text 語言
 const languageCode = 'zh-TW';
 const speechClient = new googleSpeech.SpeechClient();
-const textToSpeechClient = new googleTextToSpeech.TextToSpeechClient();
 
-class GoogleSttAndTts {
-  // 音檔轉換 m4a To linear16
-  audioFormatFileExtension(inputPath, outputPath) {
-    return linear16(inputPath, outputPath);
-  }
-
-  // 儲存音檔
-  async saveAudio(audioContent, fileName = 'input.mp3') {
-    if (!audioContent) {
-      throw 'No AudioContent';
-    }
-    const writeFile = util.promisify(fs.writeFile);
-    await writeFile(fileName, audioContent, 'binary');
-  }
-
-  // get 音檔時間長度（毫秒）
-  getAudioDurationInMilliSecond(filePath) {
-    return getAudioDurationInSeconds(filePath).then((duration) => {
-      return duration * 1000;
-    });
-  }
-
-  // 刪除音檔
-  deleteFile(filePath) {
-    fs.unlink(filePath, (err) => {
-      if (err) console.error(err);
-    });
-  }
-
+class GoogleStt {
   // Google 轉換 speech To text（小於等於一分鐘的音檔）
   async lessOneMinuteSpeechToText(filePath) {
     const file = fs.readFileSync(filePath);
@@ -91,18 +57,6 @@ class GoogleSttAndTts {
       return this.lessOneMinuteSpeechToText(filePath);
     }
   }
-
-  // Google 轉換 text To speech
-  async textToSpeech(text) {
-    const request = {
-      input: { text },
-      voice: { languageCode, ssmlGender: 'NEUTRAL' },
-      audioConfig: { audioEncoding: 'MP3' },
-    };
-
-    const [response] = await textToSpeechClient.synthesizeSpeech(request);
-    return response.audioContent;
-  }
 }
 
-module.exports = new GoogleSttAndTts();
+module.exports = new GoogleStt();

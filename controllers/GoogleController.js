@@ -1,4 +1,4 @@
-const GoogleCloud = require('../services/GoogleCloud.js');
+const GoogleCloud = require('../services/GoogleCloud');
 
 class GoogleController {
   async getAccessUrl(req, res) {
