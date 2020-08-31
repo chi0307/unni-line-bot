@@ -1,0 +1,34 @@
+{
+  "name": "catMenu",
+  "chatBarText": "奴才區",
+  "areas": [
+    [
+      {
+        "type": "message",
+        "text": "我要吸貓"
+      },
+      {
+        "type": "message",
+        "text": "講幹話"
+      },
+      {
+        "type": "message",
+        "text": "想聽情話"
+      }
+    ],
+    [
+      {
+        "type": "postback",
+        "data": "null"
+      },
+      {
+        "type": "postback",
+        "data": "null"
+      },
+      {
+        "type": "postback",
+        "data": "edit"
+      }
+    ]
+  ]
+}

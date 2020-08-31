@@ -7,7 +7,13 @@ const client = new line.Client({
   channelSecret: process.env.LINE_CHANNEL_SECRET,
 });
 
-const menuData = require('./menuData.json');
+if (process.argv.length < 3) {
+  throw 'no menu';
+}
+let menu = process.argv[2];
+
+const menuData = require(`./${menu}.json`);
+const menuImage = fs.createReadStream(`./${menu}.png`);
 let richMenuId;
 
 const menuSize = [
@@ -83,7 +89,7 @@ async function uploadMenuImage() {
   if (!richMenuId) {
     throw 'no richMenuId';
   }
-  await client.setRichMenuImage(richMenuId, fs.createReadStream('./menu.png')).then((result) => {
+  await client.setRichMenuImage(richMenuId, menuImage).then((result) => {
     console.log('upload menu image success');
   });
 }
@@ -103,6 +109,12 @@ async function clearMenuList() {
     for (let richmenu of richmenus) {
       client.deleteRichMenu(richmenu.richMenuId);
     }
+  });
+}
+
+async function getMenuList() {
+  client.getRichMenuList().then((richmenus) => {
+    richmenus.forEach((richmenu) => console.log(richmenu));
   });
 }
 

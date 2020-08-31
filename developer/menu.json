@@ -5,17 +5,14 @@
     [
       {
         "type": "message",
-        "label": "我要吸貓",
         "text": "我要吸貓"
       },
       {
         "type": "message",
-        "label": "講幹話",
         "text": "講幹話"
       },
       {
         "type": "message",
-        "label": "想聽情話",
         "text": "想聽情話"
       }
     ]
