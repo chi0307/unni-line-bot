@@ -68,7 +68,7 @@ class LineController {
                   } else if (sourceType === 'user') {
                     Line.pushMessage(userId, message);
                   } else {
-                    reject();
+                    return Promise.reject();
                   }
                 }
               }
