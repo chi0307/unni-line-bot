@@ -13,11 +13,9 @@ class LineController {
         new Promise(async (resolve, reject) => {
           if (event.type === 'message') {
             let message = event.message;
-            let inputText, replyText;
             switch (message.type) {
               case 'text': {
-                inputText = message.text;
-
+                let inputText = message.text;
                 let messages = await Messages.getReturnMessages(inputText, userId);
                 if (messages) {
                   resolve(messages);
@@ -26,11 +24,11 @@ class LineController {
                 }
                 break;
               }
-              case 'audio': {
-                inputText = await SttAndTts.saveLineAudioAndConvertToText(message.id);
-                console.log('Google 聲音辨識為：', inputText);
 
-                let messages, replyText;
+              case 'audio': {
+                let inputText = await SttAndTts.saveLineAudioAndConvertToText(message.id);
+                console.log('Google 聲音辨識為：', inputText);
+                let messages;
                 messages = await Messages.getReturnMessages(inputText, userId);
                 if (messages) {
                   for (let index in messages) {
@@ -47,10 +45,19 @@ class LineController {
                 }
                 break;
               }
+
               default: {
                 reject();
                 break;
               }
+            }
+          } else if (event.type === 'postback') {
+            let data = event.postback.data;
+            if (/^richMenu=/.test(data)) {
+              let menuName = data.replace(/^richMenu=/, '');
+              Line.setRichMenuToUser(userId, menuName);
+            } else {
+              reject();
             }
           } else {
             reject();

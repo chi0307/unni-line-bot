@@ -41,6 +41,7 @@ function authorize() {
 }
 
 class GoogleCloud {
+  // google 認證網址
   getAccessUrl() {
     const oAuth2Client = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI);
     const authUrl = oAuth2Client.generateAuthUrl({
@@ -51,6 +52,7 @@ class GoogleCloud {
     return authUrl;
   }
 
+  // 用 code 去 google 得到 token
   async setAccessToken({ code }) {
     const oAuth2Client = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI);
     return new Promise((resolve, reject) => {
@@ -75,12 +77,14 @@ class GoogleCloud {
     );
   }
 
+  // 確認是否已有 token，若無回傳認證網址
   async checkAccessToken() {
     let auth = await authorize();
     let url = await this.getAccessUrl();
     return auth ? null : url;
   }
 
+  // 回傳 token
   getAccessToken() {
     return Redis.get('google_token').then((token) => {
       token = JSON.parse(token);
@@ -88,6 +92,7 @@ class GoogleCloud {
     });
   }
 
+  // 刷新 token
   async refreshAccessToken() {
     let token = await this.getAccessToken();
     const oAuth2Client = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI);

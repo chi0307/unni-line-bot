@@ -1,5 +1,5 @@
 {
-  "name": "catMenu",
+  "name": "cat",
   "chatBarText": "奴才區",
   "areas": [
     [
@@ -27,7 +27,7 @@
       },
       {
         "type": "postback",
-        "data": "edit"
+        "data": "richMenu=edit"
       }
     ]
   ]

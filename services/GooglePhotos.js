@@ -3,6 +3,7 @@ const axios = require('axios');
 const GoogleCloud = require('./GoogleCloud');
 
 class GooglePhotos {
+  // get google photos 相片
   async getImages() {
     let images = [];
     let token = await GoogleCloud.getAccessToken();
