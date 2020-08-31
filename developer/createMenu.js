@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config({ path: '../.env.product' });
 const fs = require('fs');
 const line = require('@line/bot-sdk');
 

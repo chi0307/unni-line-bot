@@ -18,8 +18,8 @@
     ],
     [
       {
-        "type": "postback",
-        "data": "null"
+        "type": "message",
+        "text": "肚子餓"
       },
       {
         "type": "postback",

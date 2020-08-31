@@ -17,32 +17,23 @@ class LineController {
               case 'text': {
                 let inputText = message.text;
                 let messages = await Messages.getReturnMessages(inputText, userId);
-                if (messages) {
-                  resolve(messages);
-                } else {
-                  reject();
-                }
+                resolve(messages);
                 break;
               }
 
               case 'audio': {
                 let inputText = await SttAndTts.saveLineAudioAndConvertToText(message.id);
                 console.log('Google 聲音辨識為：', inputText);
-                let messages;
-                messages = await Messages.getReturnMessages(inputText, userId);
-                if (messages) {
-                  for (let index in messages) {
-                    let message = messages[index];
-                    if (message.type === 'text') {
-                      console.log('回覆為：', message.text);
-                      let lineAudioObject = await SttAndTts.textConvertToAudioAndComposeLineAudioObject(message.text);
-                      messages[index] = lineAudioObject;
-                    }
+                let messages = await Messages.getReturnMessages(inputText, userId);
+                for (let index in messages) {
+                  let message = messages[index];
+                  if (message.type === 'text') {
+                    console.log('回覆為：', message.text);
+                    let lineAudioObject = await SttAndTts.textConvertToAudioAndComposeLineAudioObject(message.text);
+                    messages[index] = lineAudioObject;
                   }
-                  resolve(messages);
-                } else {
-                  reject();
                 }
+                resolve(messages);
                 break;
               }
 
@@ -64,21 +55,25 @@ class LineController {
           }
         })
           .then((messages) => {
-            for (let index in messages) {
-              let message = messages[index];
-              if (index === '0') {
-                Line.replyMessage(replyToken, message);
-              } else {
-                if (sourceType === 'group') {
-                  Line.pushMessage(groupId, message);
-                } else if (sourceType === 'room') {
-                  Line.pushMessage(roomId, message);
-                } else if (sourceType === 'user') {
-                  Line.pushMessage(userId, message);
+            if (messages && messages.length > 0) {
+              for (let index in messages) {
+                let message = messages[index];
+                if (index === '0') {
+                  Line.replyMessage(replyToken, message);
                 } else {
-                  reject();
+                  if (sourceType === 'group') {
+                    Line.pushMessage(groupId, message);
+                  } else if (sourceType === 'room') {
+                    Line.pushMessage(roomId, message);
+                  } else if (sourceType === 'user') {
+                    Line.pushMessage(userId, message);
+                  } else {
+                    reject();
+                  }
                 }
               }
+            } else {
+              return Promise.reject();
             }
           })
           .catch(() => {

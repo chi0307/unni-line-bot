@@ -37,10 +37,16 @@ class Messages {
         text: loveTalk,
       });
     }
-    if (/餐廳|肚子餓|午餐吃|晚餐吃/.test(inputText)) {
+    if (/(餐廳|餓|吃|午餐|晚餐|宵夜)/.test(inputText)) {
       let foods = await this.getUserFoods(userId);
       let food = randomList(foods);
-      let replyTexts = ['污泥想吃「$1」'];
+      let replyTexts = [
+        '污泥想吃「$1」',
+        '帶污泥去吃「$1」',
+        '請污泥吃「$1」',
+        '幫污泥外帶「$1」',
+        '污泥：喵～～「$1」',
+      ];
       let replyText = randomList(replyTexts);
       messages.push({
         type: 'text',
@@ -48,12 +54,12 @@ class Messages {
       });
     }
 
-    return messages.length > 0 ? messages : null;
+    return messages;
   }
 
   async getUserFoods(userId) {
     let foods;
-    let userFoods = await Mongo.search({ collection: 'food', filter: { userId: userId } });
+    let userFoods = await Mongo.search({ collection: 'foodList', filter: { userId: userId } });
     if (userFoods.length > 0) {
       foods = userFoods[0].foods;
     } else {
