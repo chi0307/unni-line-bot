@@ -1,7 +1,9 @@
 const GooglePhotos = require('../services/GooglePhotos');
+const Mongo = require('../services/Mongo');
 
 const dryTalks = require('../data/dryTalks.json');
 const loveTalks = require('../data/loveTalks.json');
+const defaultFoods = require('../data/foods.json');
 
 function randomList(list) {
   let index = Math.floor(Math.random() * list.length);
@@ -35,8 +37,29 @@ class Messages {
         text: loveTalk,
       });
     }
+    if (/餐廳|肚子餓|午餐吃|晚餐吃/.test(inputText)) {
+      let foods = await this.getUserFoods(userId);
+      let food = randomList(foods);
+      let replyTexts = ['污泥想吃「$1」'];
+      let replyText = randomList(replyTexts);
+      messages.push({
+        type: 'text',
+        text: replyText.replace('$1', food),
+      });
+    }
 
     return messages.length > 0 ? messages : null;
+  }
+
+  async getUserFoods(userId) {
+    let foods;
+    let userFoods = await Mongo.search({ collection: 'food', filter: { userId: userId } });
+    if (userFoods.length > 0) {
+      foods = userFoods[0].foods;
+    } else {
+      foods = defaultFoods;
+    }
+    return foods;
   }
 }
 module.exports = new Messages();
