@@ -39,7 +39,7 @@ class LineController {
 
               case 'location': {
                 let location = `${message.latitude},${message.longitude}`;
-                let messages = await Messages.getReturnPlace(location);
+                let messages = await Messages.getReturnPlace(location, userId);
                 resolve(messages);
               }
 

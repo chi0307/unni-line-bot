@@ -85,10 +85,22 @@ class Messages {
     return messages;
   }
 
-  async getReturnPlace(location) {
+  async getReturnPlace(location, userId) {
     let places = await GoogleMaps.getNearbySearchPlaces(location);
     let place = randomList(places);
     let replyText = randomList(unniEatReplyMessages);
+    console.log(
+      `location: ${location}   name: ${place.name}   rating: ${place.rating}   userRatingsTotal: ${place.user_ratings_total}`
+    );
+    Mongo.insertOne({
+      collection: 'placeLog',
+      doc: {
+        userId,
+        timestamp: new Date().getTime(),
+        location,
+        place,
+      },
+    });
     let messages = [
       {
         type: 'text',
