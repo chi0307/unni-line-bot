@@ -46,24 +46,10 @@ class GoogleMaps {
     };
     let places = await getAllPlaces();
 
-    // 先篩除掉評分未滿 40 的，避免評分太少拉高分數
-    places = places.filter((place) => place.user_ratings_total >= 40);
-
-    let totalRating = 0,
-      totalUserRatingsTotal = 0;
-    places.forEach((place) => {
-      totalRating += place.rating;
-      totalUserRatingsTotal += place.user_ratings_total <= 300 ? place.user_ratings_total : 300;
-    });
-
-    let avgRating = totalRating / places.length >= 3 ? totalRating / places.length : 3;
-    let avgUserRatingsTotal = totalUserRatingsTotal / places.length >= 50 ? totalUserRatingsTotal / places.length : 50;
-    console.log(`location: ${location}   avgRating: ${avgRating}   avgUserRatingsTotal: ${avgUserRatingsTotal}`);
-
     places = places.filter(
       (place) =>
-        place.rating >= avgRating &&
-        place.user_ratings_total >= avgUserRatingsTotal &&
+        place.rating >= 3.5 &&
+        place.user_ratings_total >= 50 &&
         !/(酒店|飯店)/.test(place.name) &&
         !place.types.includes('lodging')
     );
