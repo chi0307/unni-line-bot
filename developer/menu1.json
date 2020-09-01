@@ -22,8 +22,8 @@
         "text": "肚子餓"
       },
       {
-        "type": "postback",
-        "data": "null"
+        "type": "message",
+        "text": "附近吃啥"
       },
       {
         "type": "postback",

@@ -37,6 +37,12 @@ class LineController {
                 break;
               }
 
+              case 'location': {
+                let location = `${message.latitude},${message.longitude}`;
+                let messages = await Messages.getReturnPlace(location);
+                resolve(messages);
+              }
+
               default: {
                 reject();
                 break;
