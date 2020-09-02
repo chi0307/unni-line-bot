@@ -1,7 +1,7 @@
 const GooglePhotos = require('../services/GooglePhotos');
 const GoogleMaps = require('../services/GoogleMaps');
 const Mongo = require('../services/Mongo');
-const { format } = require('date-fns');
+const { format, addHours } = require('date-fns');
 
 const dryTalks = require('../data/dryTalks.json');
 const loveTalks = require('../data/loveTalks.json');
@@ -97,8 +97,11 @@ class Messages {
       collection: 'placeLog',
       doc: {
         userId,
-        time: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+        time: format(addHours(new Date(), 8), 'yyyy-MM-dd HH:mm:ss'),
         location,
+        name: place.name,
+        rating: place.rating,
+        user_ratings_total: place.user_ratings_total,
         place,
       },
     });
