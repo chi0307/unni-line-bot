@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "yarn saveCredentials && node index.js",
+    "dev": "yarn saveCredentials && nodemon index.js",
+    "saveCredentials": "node saveCredentials.js"
   },
   "keywords": [],
   "author": "",

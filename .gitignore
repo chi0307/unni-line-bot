@@ -1,5 +1,8 @@
-!.env
-!credentials.json
+.env
+.env.*
+credentials.json
+!.env.example
+
 .DS_Store
 
 node_modules/
