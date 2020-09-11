@@ -27,7 +27,7 @@ class LineController {
                 let messages = await Messages.getReturnMessages(inputText, userId);
                 for (let index in messages) {
                   let message = messages[index];
-                  if (message.type === 'text') {
+                  if (message.type === 'text' && !message.quickReply) {
                     console.log('回覆為：', message.text);
                     let lineAudioObject = await SttAndTts.textConvertToAudioAndComposeLineAudioObject(message.text);
                     messages[index] = lineAudioObject;
