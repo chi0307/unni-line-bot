@@ -9,7 +9,8 @@ class GooglePhotos {
     let token = await GoogleCloud.getAccessToken();
 
     let nextImageToken,
-      repeatGetImage = true;
+      repeatGetImage = true,
+      errorCount = 0;
     while (repeatGetImage) {
       await axios
         .get('https://photoslibrary.googleapis.com/v1/mediaItems', {
@@ -21,9 +22,12 @@ class GooglePhotos {
         })
         .then((result) => {
           let { mediaItems, nextPageToken } = result.data;
+          console.log(`google photos get images ${mediaItems.length} success!!`);
           if (mediaItems) {
-            nextImageToken = nextPageToken;
             images = [...images, ...mediaItems];
+          }
+          if (nextPageToken) {
+            nextImageToken = nextPageToken;
           } else {
             repeatGetImage = false;
           }
@@ -32,7 +36,11 @@ class GooglePhotos {
           if (err.response.status === 401) {
             token = await GoogleCloud.refreshAccessToken();
           } else {
-            console.error(err);
+            console.error(`google photos get error: ${err}`);
+          }
+          errorCount++;
+          if (errorCount >= 10) {
+            repeatGetImage = false;
           }
         });
     }
