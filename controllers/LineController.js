@@ -1,6 +1,7 @@
 const SttAndTts = require('../services/SttAndTts');
 const Line = require('../services/Line');
 const Messages = require('../services/Messages');
+let nextLocationIsReturnPlace = false;
 
 class LineController {
   index(req, res) {
@@ -10,6 +11,10 @@ class LineController {
           replyToken = event.replyToken,
           sourceType = event.source.type;
 
+        if (nextLocationIsReturnPlace && event.message.type !== 'location') {
+          nextLocationIsReturnPlace = false;
+        }
+
         new Promise(async (resolve, reject) => {
           if (event.type === 'message') {
             let message = event.message;
@@ -17,6 +22,9 @@ class LineController {
               case 'text': {
                 let inputText = message.text;
                 let messages = await Messages.getReturnMessages(inputText, userId);
+                if (messages.length === 1 && messages[0].quickReply) {
+                  nextLocationIsReturnPlace = true;
+                }
                 resolve(messages);
                 break;
               }
@@ -38,9 +46,14 @@ class LineController {
               }
 
               case 'location': {
-                let location = `${message.latitude},${message.longitude}`;
-                let messages = await Messages.getReturnPlace(location, userId);
-                resolve(messages);
+                if (nextLocationIsReturnPlace) {
+                  nextLocationIsReturnPlace = false;
+                  let location = `${message.latitude},${message.longitude}`;
+                  let messages = await Messages.getReturnPlace(location, userId);
+                  resolve(messages);
+                } else {
+                  reject();
+                }
               }
 
               default: {
