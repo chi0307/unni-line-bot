@@ -1,10 +1,8 @@
 const redis = require('redis');
 
-let redisClient;
-
 class Redis {
   connect() {
-    redisClient = redis.createClient({
+    return redis.createClient({
       host: process.env.REDIS_HOST,
       port: process.env.REDIS_PORT,
       password: process.env.REDIS_PASSWORD || undefined,
@@ -12,12 +10,12 @@ class Redis {
     });
   }
 
-  quit() {
+  quit(redisClient) {
     redisClient.quit();
   }
 
-  get(key) {
-    this.connect();
+  async get(key) {
+    let redisClient = await this.connect();
     return new Promise((resolve, reject) => {
       redisClient.get(key, (err, result) => {
         if (err) {
@@ -28,12 +26,12 @@ class Redis {
         }
       });
     }).finally(() => {
-      this.quit();
+      this.quit(redisClient);
     });
   }
 
-  set(key, value) {
-    this.connect();
+  async set(key, value) {
+    let redisClient = await this.connect();
     return new Promise((resolve, reject) => {
       redisClient.set(key, value, (err) => {
         if (err) {
@@ -44,7 +42,7 @@ class Redis {
         }
       });
     }).finally(() => {
-      this.quit();
+      this.quit(redisClient);
     });
   }
 }
