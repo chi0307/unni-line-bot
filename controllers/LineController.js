@@ -30,22 +30,6 @@ class LineController {
                 break;
               }
 
-              case 'audio': {
-                let inputText = await SttAndTts.saveLineAudioAndConvertToText(message.id);
-                console.log('Google 聲音辨識為：', inputText);
-                let messages = await Messages.getReturnMessages(inputText, userId);
-                for (let index in messages) {
-                  let message = messages[index];
-                  if (message.type === 'text' && !message.quickReply) {
-                    console.log('回覆為：', message.text);
-                    let lineAudioObject = await SttAndTts.textConvertToAudioAndComposeLineAudioObject(message.text);
-                    messages[index] = lineAudioObject;
-                  }
-                }
-                resolve(messages);
-                break;
-              }
-
               case 'location': {
                 if (nextLocationIsReturnPlace) {
                   nextLocationIsReturnPlace = false;
