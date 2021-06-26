@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/dialogflow": "^4.1.0",
     "@google-cloud/speech": "^4.1.1",
     "@google-cloud/text-to-speech": "^3.1.0",
     "@line/bot-sdk": "^7.0.0",
@@ -23,6 +24,7 @@
     "googleapis": "^59.0.0",
     "linear16": "^1.2.0",
     "mongodb": "^3.6.0",
-    "redis": "^3.0.2"
+    "redis": "^3.0.2",
+    "uuidv4": "^6.2.10"
   }
 }

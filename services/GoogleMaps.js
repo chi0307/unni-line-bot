@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const { GOOGLE_API_KEY } = process.env;
 
 class GoogleMaps {
   async getNearbySearchPlaces(location) {

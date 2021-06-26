@@ -2,9 +2,11 @@ require('dotenv').config({ path: '../.env' });
 const fs = require('fs');
 const line = require('@line/bot-sdk');
 
+const { LINE_CHANNEL_ACCESS_TOKEN, LINE_CHANNEL_SECRET } = process.env;
+
 const client = new line.Client({
-  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
-  channelSecret: process.env.LINE_CHANNEL_SECRET,
+  channelAccessToken: LINE_CHANNEL_ACCESS_TOKEN,
+  channelSecret: LINE_CHANNEL_SECRET,
 });
 
 if (process.argv.length < 3) {

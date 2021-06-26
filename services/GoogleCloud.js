@@ -3,11 +3,10 @@ const { google } = require('googleapis');
 const Redis = require('./Redis');
 
 const SCOPES = ['https://www.googleapis.com/auth/photoslibrary'];
+const { HOST_PATH, GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_ID } = process.env;
 const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI
   ? process.env.GOOGLE_REDIRECT_URI
-  : `${process.env.HOST_PATH}${/\/$/.test(process.env.HOST_PATH) ? '' : '/'}api/setAccessToken`;
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+  : `${HOST_PATH}${/\/$/.test(HOST_PATH) ? '' : '/'}api/setAccessToken`;
 
 function authorize() {
   return new Promise((resolve, reject) => {

@@ -1,12 +1,12 @@
 const MongoClient = require('mongodb').MongoClient;
 
-const uri = process.env.MONGO_URI;
-const db = 'bot';
+const { MONGO_URI } = process.env;
+const MONGO_DB = 'bot';
 let client;
 
 class Mongo {
   async connect() {
-    client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
     await client.connect();
   }
 
@@ -18,7 +18,7 @@ class Mongo {
     await this.connect();
     return new Promise((resolve, reject) => {
       client
-        .db(db)
+        .db(MONGO_DB)
         .collection(collection)
         .find(filter)
         .toArray(function (err, items) {
@@ -36,7 +36,7 @@ class Mongo {
     await this.connect();
     return new Promise((resolve, reject) => {
       client
-        .db(db)
+        .db(MONGO_DB)
         .collection(collection)
         .insertOne(doc, (err, result) => {
           if (err) reject(err);
@@ -54,7 +54,7 @@ class Mongo {
     await this.connect();
     return new Promise((resolve, reject) => {
       client
-        .db(db)
+        .db(MONGO_DB)
         .collection(collection)
         .replaceOne(filter, doc, (err, result) => {
           if (err) reject(err);
@@ -72,7 +72,7 @@ class Mongo {
     await this.connect();
     return new Promise((resolve, reject) => {
       client
-        .db(db)
+        .db(MONGO_DB)
         .collection(collection)
         .deleteMany(filter, (err, result) => {
           if (err) reject(err);
