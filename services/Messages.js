@@ -26,8 +26,11 @@ class Messages {
   async getReturnMessages(inputText, userId) {
     let messages = [];
     let dialogFlowResult = await GoogleDialogFlow.message(inputText, userId);
-    const { fulfillmentMessages } = dialogFlowResult;
+    const { fulfillmentMessages, intentDetectionConfidence } = dialogFlowResult;
     const ansId = fulfillmentMessages?.[0]?.payload?.fields?.ansId?.stringValue;
+    if (ansId) {
+      console.log(`問題：${inputText}\nansId：${ansId}\n信心指數：${intentDetectionConfidence}`);
+    }
 
     switch (ansId) {
       // 貓咪
