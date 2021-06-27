@@ -1,5 +1,5 @@
 const { transformToLineMessage } = require('@chi0307/transform-chatbot-message');
-const { format, addHours, endOfDay } = require('date-fns');
+const { format, addHours, endOfDay, getDay } = require('date-fns');
 const GooglePhotos = require('../services/GooglePhotos');
 const GoogleMaps = require('../services/GoogleMaps');
 const Mongo = require('../services/Mongo');
@@ -63,25 +63,29 @@ class Messages {
 
               weatherElement.forEach((element) => {
                 const date = format(new Date(element.startTime), 'MM/dd');
-                const time = format(new Date(element.startTime), 'HH:mm');
-                const weatherDescription = element.elementValue[0].value.replace(
-                  /^([^。]*。)([^。]*。)?([^。]*。)([^。]*。)([^。]*。)([^。]*。)$/,
-                  '$1$2\n$3$4\n$5\n$6'
-                );
+                const theDayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][getDay(new Date(element.startTime))];
+                const startTime = format(new Date(element.startTime), 'MM/dd HH:mm');
+                const endTime = format(new Date(element.endTime), 'MM/dd HH:mm');
+                const weatherDescription = element.elementValue[0].value
+                  .replace(/^([^。]*。)([^。]*。)?([^。]*。)([^。]*。)([^。]*。)([^。]*。)$/, '$1$2\n$3$4\n$5\n$6')
+                  .replace(/。\n/g, '\n')
+                  .replace(/。$/, '');
                 const weatherIndex = weatherData.findIndex((item) => item.date === date);
 
                 if (weatherIndex >= 0) {
                   weatherData[weatherIndex].weathers.push({
-                    time,
+                    startTime,
+                    endTime,
                     weatherDescription,
                   });
                 } else {
                   weatherData.push({
-                    title: `${locationsName}${locationName} ${date}`,
+                    title: `${locationsName}${locationName} ${date}(${theDayOfWeek})`,
                     date,
                     weathers: [
                       {
-                        time,
+                        startTime,
+                        endTime,
                         weatherDescription,
                       },
                     ],
@@ -98,8 +102,8 @@ class Messages {
                 },
               };
 
-              weatherData.forEach(({ title, weathers }) => {
-                message.contents.contents.push({
+              weatherData.forEach(({ title, weathers }, length) => {
+                const content = {
                   type: 'bubble',
                   body: {
                     type: 'box',
@@ -120,39 +124,73 @@ class Messages {
                         type: 'separator',
                         margin: 'md',
                       },
-                      ...weathers.map(({ time, weatherDescription }) => {
-                        return {
-                          type: 'box',
-                          layout: 'vertical',
-                          contents: [
-                            {
-                              type: 'box',
-                              layout: 'horizontal',
-                              contents: [
-                                {
-                                  type: 'text',
-                                  text: time,
-                                  size: 'sm',
-                                  flex: 0,
-                                  color: '#111111',
-                                },
-                                {
-                                  type: 'text',
-                                  text: weatherDescription,
-                                  size: 'xxs',
-                                  color: '#555555',
-                                  align: 'end',
-                                  wrap: true,
-                                },
-                              ],
-                            },
-                          ],
-                          margin: 'md',
-                        };
-                      }),
+                      {
+                        type: 'box',
+                        layout: 'vertical',
+                        contents: [],
+                        margin: 'md',
+                      },
                     ],
                   },
+                };
+                if (length === 0) {
+                  content.body.contents[2] = {
+                    ...content.body.contents[2],
+                    flex: 1,
+                    justifyContent: 'flex-end',
+                  };
+                }
+                weathers.forEach(({ startTime, endTime, weatherDescription }, length) => {
+                  content.body.contents[2].contents.push({
+                    type: 'box',
+                    layout: 'vertical',
+                    margin: 'md',
+                    contents: [
+                      {
+                        type: 'text',
+                        text: startTime,
+                      },
+                    ],
+                  });
+                  content.body.contents[2].contents.push({
+                    type: 'box',
+                    layout: 'horizontal',
+                    margin: 'md',
+                    contents: [
+                      {
+                        type: 'text',
+                        text: startTime.includes('06:00') ? '☀️' : '🌙',
+                        flex: 1,
+                        align: 'center',
+                        gravity: 'center',
+                      },
+                      {
+                        type: 'text',
+                        text: weatherDescription,
+                        size: 'xxs',
+                        color: '#555555',
+                        flex: 7,
+                        align: 'end',
+                        wrap: true,
+                      },
+                    ],
+                  });
+
+                  if (weathers.length - 1 === length) {
+                    content.body.contents[2].contents.push({
+                      type: 'box',
+                      layout: 'vertical',
+                      margin: 'md',
+                      contents: [
+                        {
+                          type: 'text',
+                          text: endTime,
+                        },
+                      ],
+                    });
+                  }
                 });
+                message.contents.contents.push(content);
               });
 
               messages.push(message);
