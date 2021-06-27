@@ -1,0 +1,20 @@
+[
+  {
+    "ansId": "02-1",
+    "messages": [
+      {
+        "type": "template",
+        "altText": "你現在在哪裡呢？",
+        "template": {
+          "type": "buttons",
+          "text": "你現在在哪裡呢？",
+          "actions": [
+            { "type": "message", "label": "台北市內湖區", "text": "台北市內湖區" },
+            { "type": "message", "label": "台中市神岡區", "text": "台中市神岡區" },
+            { "type": "message", "label": "台中市豐原區", "text": "台中市豐原區" }
+          ]
+        }
+      }
+    ]
+  }
+]
