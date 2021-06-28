@@ -64,33 +64,28 @@ class Messages {
               weatherElement.forEach((element) => {
                 const date = format(new Date(element.startTime), 'MM/dd');
                 const theDayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][getDay(new Date(element.startTime))];
-                const startTime = format(new Date(element.startTime), 'MM/dd HH:mm');
-                const endTime = format(new Date(element.endTime), 'MM/dd HH:mm');
+                const startDateTime = format(new Date(element.startTime), 'MM/dd HH:mm');
+                const endDateTime = format(new Date(element.endTime), 'MM/dd HH:mm');
                 const weatherDescription = element.elementValue[0].value
                   .replace(/^([^。]*。)([^。]*。)?([^。]*。)([^。]*。)([^。]*。)([^。]*。)$/, '$1$2\n$3$4\n$5\n$6')
                   .replace(/。\n/g, '\n')
                   .replace(/。$/, '');
-                const weatherIndex = weatherData.findIndex((item) => item.date === date);
+                let weatherIndex = weatherData.findIndex((item) => item.date === date);
 
-                if (weatherIndex >= 0) {
-                  weatherData[weatherIndex].weathers.push({
-                    startTime,
-                    endTime,
-                    weatherDescription,
-                  });
-                } else {
+                if (weatherIndex < 0) {
                   weatherData.push({
                     title: `${locationsName}${locationName} ${date}(${theDayOfWeek})`,
                     date,
-                    weathers: [
-                      {
-                        startTime,
-                        endTime,
-                        weatherDescription,
-                      },
-                    ],
+                    weathers: [],
                   });
+                  weatherIndex = weatherData.length - 1;
                 }
+
+                weatherData[weatherIndex].weathers.push({
+                  startDateTime,
+                  endDateTime,
+                  weatherDescription,
+                });
               });
 
               const message = {
@@ -140,7 +135,7 @@ class Messages {
                     justifyContent: 'flex-end',
                   };
                 }
-                weathers.forEach(({ startTime, endTime, weatherDescription }, length) => {
+                weathers.forEach(({ startDateTime, endDateTime, weatherDescription }, length) => {
                   content.body.contents[2].contents.push({
                     type: 'box',
                     layout: 'vertical',
@@ -148,7 +143,7 @@ class Messages {
                     contents: [
                       {
                         type: 'text',
-                        text: startTime,
+                        text: startDateTime,
                       },
                     ],
                   });
@@ -159,7 +154,8 @@ class Messages {
                     contents: [
                       {
                         type: 'text',
-                        text: startTime.includes('06:00') ? '☀️' : '🌙',
+                        text:
+                          '06:00' <= startDateTime.split(' ')[1] && startDateTime.split(' ')[1] < '18:00' ? '☀️' : '🌙',
                         flex: 1,
                         align: 'center',
                         gravity: 'center',
@@ -184,7 +180,7 @@ class Messages {
                       contents: [
                         {
                           type: 'text',
-                          text: endTime,
+                          text: endDateTime,
                         },
                       ],
                     });
