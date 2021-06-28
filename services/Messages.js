@@ -51,6 +51,7 @@ class Messages {
         // 天氣
         case '02': {
           const township = parameters?.fields?.township?.stringValue;
+          const dateRangeName = parameters?.fields?.['date-range-name']?.stringValue;
           const [cityName, townName] = township.split(',');
           const { cityId } = calendarCityData.find((cityItem) => cityItem.cityName === cityName) || {};
           if (cityName && cityId && townName) {
@@ -59,8 +60,9 @@ class Messages {
               const locationName = data?.records?.locations?.[0]?.location?.[0]?.locationName;
               const description = '天氣預報綜合描述';
               const weatherElement = data?.records?.locations?.[0]?.location?.[0]?.weatherElement?.[0]?.time || [];
-              const weatherData = [];
+              let weatherData = [];
 
+              // 組成畫面需要的資料
               weatherElement.forEach((element) => {
                 const date = format(new Date(element.startTime), 'MM/dd');
                 const theDayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][getDay(new Date(element.startTime))];
@@ -75,18 +77,41 @@ class Messages {
                 if (weatherIndex < 0) {
                   weatherData.push({
                     title: `${locationsName}${locationName} ${date}(${theDayOfWeek})`,
+                    theDayOfWeek,
                     date,
                     weathers: [],
                   });
                   weatherIndex = weatherData.length - 1;
                 }
 
+                const startTime = startDateTime.split(' ')[1];
                 weatherData[weatherIndex].weathers.push({
                   startDateTime,
                   endDateTime,
                   weatherDescription,
+                  weatherDescriptionIcon: '06:00' <= startTime && startTime < '18:00' ? '☀️' : '🌙',
                 });
               });
+
+              if (dateRangeName === '今天') {
+                weatherData = weatherData.slice(0, 1);
+              } else if (dateRangeName === '明天') {
+                weatherData = weatherData.slice(1, 2);
+              } else if (dateRangeName === '後天') {
+                weatherData = weatherData.slice(2, 3);
+              } else if (/^週([一二三四五六日])$/.test(dateRangeName)) {
+                const theDayOfWeek = dateRangeName.replace(/^週([一二三四五六日])$/, '$1');
+                weatherData = [weatherData.find((weatherIndex) => weatherIndex.theDayOfWeek === theDayOfWeek)];
+              } else if (dateRangeName === '平日') {
+                const mondayIndex = weatherData.findIndex((weatherIndex) => weatherIndex.theDayOfWeek === '一');
+                const saturdayIndex = weatherData.findIndex(
+                  (weatherIndex, index) => index !== 0 && weatherIndex.theDayOfWeek === '六'
+                );
+                weatherData = weatherData.slice(mondayIndex, saturdayIndex);
+              } else if (dateRangeName === '假日') {
+                const saturdayIndex = weatherData.findIndex((weatherIndex) => weatherIndex.theDayOfWeek === '六');
+                weatherData = weatherData.slice(saturdayIndex, saturdayIndex + 2);
+              }
 
               const message = {
                 type: 'flex',
@@ -135,44 +160,8 @@ class Messages {
                     justifyContent: 'flex-end',
                   };
                 }
-                weathers.forEach(({ startDateTime, endDateTime, weatherDescription }, length) => {
-                  content.body.contents[2].contents.push({
-                    type: 'box',
-                    layout: 'vertical',
-                    margin: 'md',
-                    contents: [
-                      {
-                        type: 'text',
-                        text: startDateTime,
-                      },
-                    ],
-                  });
-                  content.body.contents[2].contents.push({
-                    type: 'box',
-                    layout: 'horizontal',
-                    margin: 'md',
-                    contents: [
-                      {
-                        type: 'text',
-                        text:
-                          '06:00' <= startDateTime.split(' ')[1] && startDateTime.split(' ')[1] < '18:00' ? '☀️' : '🌙',
-                        flex: 1,
-                        align: 'center',
-                        gravity: 'center',
-                      },
-                      {
-                        type: 'text',
-                        text: weatherDescription,
-                        size: 'xxs',
-                        color: '#555555',
-                        flex: 7,
-                        align: 'end',
-                        wrap: true,
-                      },
-                    ],
-                  });
-
-                  if (weathers.length - 1 === length) {
+                weathers.forEach(
+                  ({ startDateTime, endDateTime, weatherDescription, weatherDescriptionIcon }, length) => {
                     content.body.contents[2].contents.push({
                       type: 'box',
                       layout: 'vertical',
@@ -180,12 +169,49 @@ class Messages {
                       contents: [
                         {
                           type: 'text',
-                          text: endDateTime,
+                          text: startDateTime,
                         },
                       ],
                     });
+                    content.body.contents[2].contents.push({
+                      type: 'box',
+                      layout: 'horizontal',
+                      margin: 'md',
+                      contents: [
+                        {
+                          type: 'text',
+                          text: weatherDescriptionIcon,
+                          flex: 1,
+                          align: 'center',
+                          gravity: 'center',
+                        },
+                        {
+                          type: 'text',
+                          text: weatherDescription,
+                          size: 'xxs',
+                          color: '#555555',
+                          flex: 7,
+                          align: 'end',
+                          wrap: true,
+                        },
+                      ],
+                    });
+
+                    if (weathers.length - 1 === length) {
+                      content.body.contents[2].contents.push({
+                        type: 'box',
+                        layout: 'vertical',
+                        margin: 'md',
+                        contents: [
+                          {
+                            type: 'text',
+                            text: endDateTime,
+                          },
+                        ],
+                      });
+                    }
                   }
-                });
+                );
                 message.contents.contents.push(content);
               });
 
