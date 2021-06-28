@@ -51,9 +51,12 @@ class Messages {
         // 天氣
         case '02': {
           const township = parameters?.fields?.township?.stringValue;
-          const dateRangeName = parameters?.fields?.['date-range-name']?.stringValue;
+          let dateRangeName = parameters?.fields?.['date-range-name']?.stringValue;
+          const searchWeather = parameters?.fields?.['search-weather']?.stringValue;
+
           const [cityName, townName] = township.split(',');
           const { cityId } = calendarCityData.find((cityItem) => cityItem.cityName === cityName) || {};
+
           if (cityName && cityId && townName) {
             await Calendar.getCityCalendar({ cityId, townName }).then(({ data }) => {
               const locationsName = data?.records?.locations?.[0]?.locationsName;
@@ -68,7 +71,8 @@ class Messages {
                 const theDayOfWeek = ['日', '一', '二', '三', '四', '五', '六'][getDay(new Date(element.startTime))];
                 const startDateTime = format(new Date(element.startTime), 'MM/dd HH:mm');
                 const endDateTime = format(new Date(element.endTime), 'MM/dd HH:mm');
-                const weatherDescription = element.elementValue[0].value
+                const originWeatherDescription = element.elementValue[0].value;
+                const weatherDescription = originWeatherDescription
                   .replace(/^([^。]*。)([^。]*。)?([^。]*。)([^。]*。)([^。]*。)([^。]*。)$/, '$1$2\n$3$4\n$5\n$6')
                   .replace(/。\n/g, '\n')
                   .replace(/。$/, '');
@@ -77,6 +81,8 @@ class Messages {
                 if (weatherIndex < 0) {
                   weatherData.push({
                     title: `${locationsName}${locationName} ${date}(${theDayOfWeek})`,
+                    locationsName,
+                    locationName,
                     theDayOfWeek,
                     date,
                     weathers: [],
@@ -90,6 +96,7 @@ class Messages {
                   endDateTime,
                   weatherDescription,
                   weatherDescriptionIcon: '06:00' <= startTime && startTime < '18:00' ? '☀️' : '🌙',
+                  originWeatherDescription,
                 });
               });
 
@@ -99,6 +106,12 @@ class Messages {
                 weatherData = weatherData.slice(1, 2);
               } else if (dateRangeName === '後天') {
                 weatherData = weatherData.slice(2, 3);
+              } else if (dateRangeName === '今明天') {
+                weatherData = weatherData.slice(0, 2);
+              } else if (dateRangeName === '明後天') {
+                weatherData = weatherData.slice(1, 3);
+              } else if (dateRangeName === '今明後天') {
+                weatherData = weatherData.slice(0, 3);
               } else if (/^週([一二三四五六日])$/.test(dateRangeName)) {
                 const theDayOfWeek = dateRangeName.replace(/^週([一二三四五六日])$/, '$1');
                 weatherData = [weatherData.find((weatherIndex) => weatherIndex.theDayOfWeek === theDayOfWeek)];
@@ -214,6 +227,46 @@ class Messages {
                 );
                 message.contents.contents.push(content);
               });
+
+              if (searchWeather && !['這週', '平日'].includes(dateRangeName)) {
+                let weatherDescriptionText = '';
+                if (!dateRangeName) {
+                  dateRangeName = '今天';
+                  weatherData = weatherData.slice(0, 1);
+                }
+
+                weatherData.forEach(({ weathers, locationName, theDayOfWeek }, index, array) => {
+                  weatherDescriptionText += array.length === 1 ? dateRangeName : `週${theDayOfWeek}`;
+                  weatherDescriptionText += `${locationName}\n`;
+
+                  weathers.forEach(({ startDateTime, originWeatherDescription }) => {
+                    const startTime = startDateTime.split(' ')[1];
+                    weatherDescriptionText += startTime < '06:00' ? '清晨' : startTime < '18:00' ? '白天' : '晚上';
+                    if (searchWeather === '溫度') {
+                      weatherDescriptionText += originWeatherDescription.replace(/^.*(溫度攝氏[^。]*)。.*$/, '$1');
+                    } else if (
+                      searchWeather === '降雨機率' &&
+                      /降雨機率/.test(originWeatherDescription) &&
+                      !/降雨機率 0%/.test(originWeatherDescription)
+                    ) {
+                      weatherDescriptionText += originWeatherDescription.replace(/^.*(降雨機率 [^。]*)。.*$/, '$1');
+                    } else if (searchWeather === '降雨機率') {
+                      weatherDescriptionText += '不會下雨';
+                    } else if (searchWeather === '天氣') {
+                      weatherDescriptionText += '天氣為' + originWeatherDescription.replace(/^([^。]*)。.*$/, '$1');
+                    }
+
+                    weatherDescriptionText += '\n';
+                  });
+
+                  weatherDescriptionText += '\n';
+                });
+
+                messages.push({
+                  type: 'text',
+                  text: weatherDescriptionText.replace(/(\n)*$/, ''),
+                });
+              }
 
               messages.push(message);
             });

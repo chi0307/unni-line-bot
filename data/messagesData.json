@@ -4,10 +4,10 @@
     "messages": [
       {
         "type": "template",
-        "altText": "你現在在哪裡呢？",
+        "altText": "你要查哪裡的天氣呢？",
         "template": {
           "type": "buttons",
-          "text": "你現在在哪裡呢？",
+          "text": "你要查哪裡的天氣呢？",
           "actions": [
             { "type": "message", "label": "台北市內湖區", "text": "台北市內湖區" },
             { "type": "message", "label": "台中市神岡區", "text": "台中市神岡區" },
