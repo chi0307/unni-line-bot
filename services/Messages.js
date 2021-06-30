@@ -1,10 +1,14 @@
 const { transformToLineMessage } = require('@chi0307/transform-chatbot-message');
 const { format, addHours, endOfDay, getDay } = require('date-fns');
+const formatTZ = require('date-fns-tz/format');
+
 const GooglePhotos = require('../services/GooglePhotos');
 const GoogleMaps = require('../services/GoogleMaps');
 const Mongo = require('../services/Mongo');
 const GoogleDialogFlow = require('../services/GoogleDialogFlow');
+const Redis = require('../services/Redis');
 const Calendar = require('./openData/Calendar');
+const Gasoline = require('./openData/Gasoline');
 
 const dryTalks = require('../data/dryTalks.json');
 const loveTalks = require('../data/loveTalks.json');
@@ -321,6 +325,134 @@ class Messages {
               },
             },
           ];
+          break;
+        }
+        case '07': {
+          const gasolineData = await Gasoline.getPrice();
+          const { gasoline92, gasoline95, gasoline98, premiumDiesel } = gasolineData;
+          const currentGasolineData = [];
+          const futureGasolineData = [];
+          for (let key of ['gasoline92', 'gasoline95', 'gasoline98', 'premiumDiesel']) {
+            const item = gasolineData[key];
+            if (item.startDate <= new Date()) {
+              await Redis.set(`gasoline/${key}`, JSON.stringify(item));
+              currentGasolineData.push(item);
+            } else {
+              futureGasolineData.push(item);
+              const currentItem = JSON.parse(await Redis.get(`gasoline/${key}`, item));
+              currentGasolineData.push(currentItem);
+            }
+          }
+
+          const message = {
+            type: 'flex',
+            altText: '汽、柴油公告牌價',
+            contents: {
+              type: 'bubble',
+              body: {
+                type: 'box',
+                layout: 'vertical',
+                contents: [
+                  {
+                    type: 'text',
+                    text: '汽、柴油公告牌價',
+                    weight: 'bold',
+                    size: 'lg',
+                  },
+                  {
+                    type: 'separator',
+                    margin: 'lg',
+                  },
+                  {
+                    type: 'box',
+                    layout: 'vertical',
+                    margin: 'lg',
+                    spacing: 'sm',
+                    contents: [],
+                  },
+                ],
+              },
+            },
+          };
+
+          currentGasolineData.forEach((item) => {
+            message.contents.body.contents[2].contents.push({
+              type: 'box',
+              layout: 'horizontal',
+              contents: [
+                {
+                  type: 'text',
+                  text: item.productName,
+                  color: '#555555',
+                  flex: 0,
+                  size: 'xs',
+                },
+                {
+                  type: 'text',
+                  text: `${item.price} 元/公升`,
+                  color: '#111111',
+                  align: 'end',
+                  size: 'xs',
+                },
+              ],
+            });
+          });
+
+          if (futureGasolineData.length > 0) {
+            const startDate = formatTZ(futureGasolineData[0].startDate, 'MM/dd', {
+              timeZone: 'Asia/Taipei',
+            });
+            const contents = [
+              {
+                type: 'text',
+                text: `${startDate} 調整價格`,
+                weight: 'bold',
+                size: 'md',
+              },
+            ];
+            futureGasolineData.forEach((item) => {
+              contents.push({
+                type: 'box',
+                layout: 'horizontal',
+                contents: [
+                  {
+                    type: 'text',
+                    text: item.productName,
+                    color: '#555555',
+                    flex: 0,
+                    size: 'xs',
+                  },
+                  {
+                    type: 'text',
+                    text: `${item.price} 元/公升`,
+                    color: '#111111',
+                    align: 'end',
+                    size: 'xs',
+                  },
+                ],
+              });
+            });
+
+            message.contents.body.contents.push({
+              type: 'separator',
+              margin: 'lg',
+            });
+            message.contents.body.contents.push({
+              type: 'box',
+              layout: 'vertical',
+              margin: 'lg',
+              contents: [
+                {
+                  type: 'box',
+                  layout: 'vertical',
+                  spacing: 'sm',
+                  contents,
+                },
+              ],
+            });
+          }
+
+          messages.push(message);
           break;
         }
         default: {
