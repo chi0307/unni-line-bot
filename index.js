@@ -1,11 +1,15 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const line = require('@line/bot-sdk');
 
 const apiRouter = require('./routes/api');
+const { getConfig } = require('./services/Line');
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+app.use(line.middleware(getConfig()));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

@@ -4,13 +4,18 @@ const axios = require('axios');
 
 const { LINE_CHANNEL_ACCESS_TOKEN, LINE_CHANNEL_SECRET } = process.env;
 
-const client = new line.Client({
+const config = {
   channelAccessToken: LINE_CHANNEL_ACCESS_TOKEN,
   channelSecret: LINE_CHANNEL_SECRET,
-});
+};
+const client = new line.Client(config);
 const JUNCHI_USER_ID = 'Ua4df45e4a80fb8b9a2bdcb5383408acc';
 
 class Line {
+  getConfig() {
+    return config;
+  }
+
   /**
    * 發送訊息
    * @param {*} id
