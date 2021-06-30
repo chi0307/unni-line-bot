@@ -29,9 +29,20 @@ function randomList(list) {
   return list[index];
 }
 
+async function fixedExecution() {
+  const gasolineData = await Gasoline.getPrice();
+  for (let key of ['gasoline92', 'gasoline95', 'gasoline98', 'premiumDiesel']) {
+    const item = gasolineData[key];
+    if (item.startDate <= new Date()) {
+      await Redis.set(`gasoline/${key}`, JSON.stringify(item));
+    }
+  }
+}
+
 class Messages {
   // 輸入文字，回傳 line messages object
   async getReturnMessages(inputText, userId) {
+    fixedExecution();
     let messages = [];
     let dialogFlowResult = await GoogleDialogFlow.message(inputText, userId);
     const { fulfillmentMessages, parameters, intentDetectionConfidence } = dialogFlowResult;
@@ -329,7 +340,6 @@ class Messages {
         }
         case '07': {
           const gasolineData = await Gasoline.getPrice();
-          const { gasoline92, gasoline95, gasoline98, premiumDiesel } = gasolineData;
           const currentGasolineData = [];
           const futureGasolineData = [];
           for (let key of ['gasoline92', 'gasoline95', 'gasoline98', 'premiumDiesel']) {
