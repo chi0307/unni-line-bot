@@ -20,9 +20,10 @@ class Redis {
     return new Promise((resolve, reject) => {
       redisClient.get(key, (err, result) => {
         if (err) {
-          console.error(err);
+          console.error(`redis get ${key} error: ${err}`);
           reject(err);
         } else {
+          console.log(`redis get ${key} success!!`);
           resolve(result);
         }
       });
@@ -36,9 +37,10 @@ class Redis {
     return new Promise((resolve, reject) => {
       redisClient.set(key, value, (err) => {
         if (err) {
-          console.error(err);
+          console.error(`redis set ${key} error: ${err}`);
           reject(err);
         } else {
+          console.log(`redis set ${key} success!!`);
           resolve(key);
         }
       });

@@ -11,28 +11,23 @@ const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI
 function authorize() {
   return new Promise((resolve, reject) => {
     const oAuth2Client = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI);
-    Redis.get('google_token')
-      .then((token) => {
-        console.error(`redis get google_token success!!`);
-        if (token) {
-          token = JSON.parse(token);
-          let origin_scope = SCOPES;
-          let currently_scope = token.scope.split(' ');
-          origin_scope = origin_scope.sort((a, b) => (a > b ? 1 : -1)).join(' ');
-          currently_scope = currently_scope.sort((a, b) => (a > b ? 1 : -1)).join(' ');
-          if (origin_scope === currently_scope) {
-            oAuth2Client.setCredentials(token);
-            resolve(oAuth2Client);
-          } else {
-            reject('modify scope');
-          }
+    Redis.get('google_token').then((token) => {
+      if (token) {
+        token = JSON.parse(token);
+        let origin_scope = SCOPES;
+        let currently_scope = token.scope.split(' ');
+        origin_scope = origin_scope.sort((a, b) => (a > b ? 1 : -1)).join(' ');
+        currently_scope = currently_scope.sort((a, b) => (a > b ? 1 : -1)).join(' ');
+        if (origin_scope === currently_scope) {
+          oAuth2Client.setCredentials(token);
+          resolve(oAuth2Client);
         } else {
-          reject('no token');
+          reject('modify scope');
         }
-      })
-      .catch((err) => {
-        console.error(`redis get google_token error: ${err}`);
-      });
+      } else {
+        reject('no token');
+      }
+    });
   }).then(
     (oAuth2Client) => {
       return oAuth2Client;
