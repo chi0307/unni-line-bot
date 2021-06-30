@@ -7,7 +7,7 @@
         "altText": "你要查哪裡的天氣呢？",
         "template": {
           "type": "buttons",
-          "text": "你要查哪裡的天氣呢？",
+          "text": "你要查哪裡的天氣呢？\n(點擊下方按鈕或輸入地區)",
           "actions": [
             { "type": "message", "label": "台北市內湖區", "text": "台北市內湖區" },
             { "type": "message", "label": "台中市神岡區", "text": "台中市神岡區" },

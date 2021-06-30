@@ -60,22 +60,7 @@ class LineController {
         })
           .then((messages) => {
             if (messages && messages.length > 0) {
-              for (let index in messages) {
-                let message = messages[index];
-                if (index === '0') {
-                  Line.replyMessage(replyToken, message);
-                } else {
-                  if (sourceType === 'group') {
-                    Line.pushMessage(groupId, message);
-                  } else if (sourceType === 'room') {
-                    Line.pushMessage(roomId, message);
-                  } else if (sourceType === 'user') {
-                    Line.pushMessage(userId, message);
-                  } else {
-                    return Promise.reject();
-                  }
-                }
-              }
+              Line.replyMessages(replyToken, messages);
             } else {
               return Promise.reject();
             }
