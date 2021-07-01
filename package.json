@@ -16,6 +16,7 @@
     "@google-cloud/dialogflow": "^4.1.0",
     "@google-cloud/speech": "^4.1.1",
     "@google-cloud/text-to-speech": "^3.1.0",
+    "@google-cloud/vision": "^2.3.5",
     "@line/bot-sdk": "^7.0.0",
     "axios": "^0.20.0",
     "date-fns": "^2.16.1",

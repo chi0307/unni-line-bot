@@ -1,6 +1,7 @@
 const SttAndTts = require('../services/SttAndTts');
 const Line = require('../services/Line');
 const Messages = require('../services/Messages');
+const GoogleVision = require('../services/GoogleVision');
 let nextLocationIsReturnPlace = false;
 
 class LineController {
@@ -26,6 +27,13 @@ class LineController {
                 if (ansId === '06') {
                   nextLocationIsReturnPlace = true;
                 }
+                resolve(messages);
+                break;
+              }
+
+              case 'image': {
+                const imageMessageId = message.id;
+                const messages = await GoogleVision.imageIdentify(imageMessageId);
                 resolve(messages);
                 break;
               }

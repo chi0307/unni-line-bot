@@ -2,11 +2,12 @@ const { transformToLineMessage } = require('@chi0307/transform-chatbot-message')
 const { format, addHours, endOfDay, getDay } = require('date-fns');
 const formatTZ = require('date-fns-tz/format');
 
-const GooglePhotos = require('../services/GooglePhotos');
-const GoogleMaps = require('../services/GoogleMaps');
-const Mongo = require('../services/Mongo');
-const GoogleDialogFlow = require('../services/GoogleDialogFlow');
-const Redis = require('../services/Redis');
+const GooglePhotos = require('./GooglePhotos');
+const GoogleMaps = require('./GoogleMaps');
+const Mongo = require('./Mongo');
+const GoogleDialogFlow = require('./GoogleDialogFlow');
+const Redis = require('./Redis');
+const Common = require('./Common');
 const Calendar = require('./openData/Calendar');
 const Gasoline = require('./openData/Gasoline');
 
@@ -23,11 +24,6 @@ const unniEatReplyMessages = [
   '幫污泥外帶「$1」',
   '污泥：喵～～去吃「$1」',
 ];
-
-function randomList(list) {
-  let index = Math.floor(Math.random() * list.length);
-  return list[index];
-}
 
 async function fixedExecution() {
   const gasolineData = await Gasoline.getPrice();
@@ -53,14 +49,8 @@ class Messages {
       switch (ansId) {
         // 貓咪
         case '01': {
-          let images = await GooglePhotos.getImages();
-          let image = randomList(images);
-
-          messages.push({
-            type: 'image',
-            originalContentUrl: image,
-            previewImageUrl: image,
-          });
+          const unniImage = await Common.getUnniImage();
+          messages.push(unniImage);
           break;
         }
         // 天氣
@@ -291,8 +281,8 @@ class Messages {
         // 肚子餓
         case '03': {
           let foods = await this.getUserFoods(userId);
-          let food = randomList(foods);
-          let replyText = randomList(unniEatReplyMessages);
+          let food = Common.randomList(foods);
+          let replyText = Common.randomList(unniEatReplyMessages);
           messages.push({
             type: 'text',
             text: replyText.replace('$1', food),
@@ -301,7 +291,7 @@ class Messages {
         }
         // 幹話
         case '04': {
-          let dryTalk = randomList(dryTalks);
+          let dryTalk = Common.randomList(dryTalks);
           messages.push({
             type: 'text',
             text: dryTalk,
@@ -310,7 +300,7 @@ class Messages {
         }
         // 情話
         case '05': {
-          let loveTalk = randomList(loveTalks);
+          let loveTalk = Common.randomList(loveTalks);
           messages.push({
             type: 'text',
             text: loveTalk,
@@ -338,6 +328,7 @@ class Messages {
           ];
           break;
         }
+        // 汽、柴油
         case '07': {
           const gasolineData = await Gasoline.getPrice();
           const currentGasolineData = [];
@@ -482,8 +473,8 @@ class Messages {
 
   async getReturnPlace(location, userId) {
     let places = await GoogleMaps.getNearbySearchPlaces(location);
-    let place = randomList(places);
-    let replyText = randomList(unniEatReplyMessages);
+    let place = Common.randomList(places);
+    let replyText = Common.randomList(unniEatReplyMessages);
     console.log(
       `location: ${location}   name: ${place.name}   rating: ${place.rating}   userRatingsTotal: ${place.user_ratings_total}`
     );

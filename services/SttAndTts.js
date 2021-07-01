@@ -5,6 +5,7 @@ const { getAudioDurationInSeconds } = require('get-audio-duration');
 
 const GoogleStt = require('./GoogleStt');
 const GoogleTts = require('./GoogleTts');
+const Common = require('./Common');
 const Line = require('./Line');
 
 // 音檔回傳 line 提供的位置
@@ -34,13 +35,6 @@ class SttAndTts {
     });
   }
 
-  // 刪除音檔
-  deleteFile(filePath) {
-    fs.unlink(filePath, (err) => {
-      if (err) console.error(err);
-    });
-  }
-
   // 下載音檔，音檔轉文字，回傳字串
   async saveLineAudioAndConvertToText(audioId) {
     let m4aFilePath = `${FILE_SAVE_PATH}${new Date().getTime()}.m4a`;
@@ -51,8 +45,8 @@ class SttAndTts {
     await this.audioFormatFileExtension(m4aFilePath, wavFilePath);
 
     let inputText = await GoogleStt.speechToText(wavFilePath, audioMilliSecond);
-    this.deleteFile(m4aFilePath);
-    this.deleteFile(wavFilePath);
+    Common.deleteFile(m4aFilePath);
+    Common.deleteFile(wavFilePath);
     return inputText;
   }
 
