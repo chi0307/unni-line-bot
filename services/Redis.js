@@ -1,12 +1,10 @@
 const redis = require('redis');
 
-const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, NODE_ENV } = process.env;
+const { NODE_ENV, REDIS_URL } = process.env;
+
 class Redis {
   connect() {
-    return redis.createClient({
-      host: REDIS_HOST,
-      port: REDIS_PORT,
-      password: REDIS_PASSWORD || undefined,
+    return redis.createClient(REDIS_URL, {
       prefix: `${NODE_ENV}/`,
     });
   }
