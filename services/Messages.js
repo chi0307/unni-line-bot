@@ -25,20 +25,31 @@ const unniEatReplyMessages = [
   '污泥：喵～～去吃「$1」',
 ];
 
-async function fixedExecution() {
-  const gasolineData = await Gasoline.getPrice();
-  for (let key of ['gasoline92', 'gasoline95', 'gasoline98', 'premiumDiesel']) {
-    const item = gasolineData[key];
-    if (item.startDate <= new Date()) {
-      await Redis.set(`gasoline/${key}`, JSON.stringify(item));
+function fixedExecution() {
+  let isWait = false;
+  return function () {
+    if (!isWait) {
+      isWait = true;
+      setTimeout(async () => {
+        const gasolineData = await Gasoline.getPrice();
+        for (let key of ['gasoline92', 'gasoline95', 'gasoline98', 'premiumDiesel']) {
+          const item = gasolineData[key];
+          if (item.startDate <= new Date()) {
+            await Redis.set(`gasoline/${key}`, JSON.stringify(item));
+          }
+        }
+        isWait = false;
+      }, 10 * 60 * 1000);
     }
-  }
+  };
 }
+const execution = fixedExecution();
+execution();
 
 class Messages {
   // 輸入文字，回傳 line messages object
   async getReturnMessages({ inputText, userId, sessionId }) {
-    fixedExecution();
+    execution();
     let messages = [];
     let dialogFlowResult = await GoogleDialogFlow.message(inputText, sessionId);
     const { fulfillmentMessages, parameters, intentDetectionConfidence } = dialogFlowResult;
