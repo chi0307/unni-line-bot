@@ -37,10 +37,10 @@ async function fixedExecution() {
 
 class Messages {
   // 輸入文字，回傳 line messages object
-  async getReturnMessages(inputText, userId) {
+  async getReturnMessages({ inputText, userId, sessionId }) {
     fixedExecution();
     let messages = [];
-    let dialogFlowResult = await GoogleDialogFlow.message(inputText, userId);
+    let dialogFlowResult = await GoogleDialogFlow.message(inputText, sessionId);
     const { fulfillmentMessages, parameters, intentDetectionConfidence } = dialogFlowResult;
     const ansId = fulfillmentMessages?.[0]?.payload?.fields?.ansId?.stringValue;
     if (ansId) {

@@ -22,7 +22,8 @@ class LineController {
             switch (message.type) {
               case 'text': {
                 let inputText = message.text;
-                let { ansId, messages } = await Messages.getReturnMessages(inputText, userId);
+                const sessionId = groupId || roomId || userId;
+                let { ansId, messages } = await Messages.getReturnMessages({ inputText, userId, sessionId });
                 // ansId: 06 是查詢附近的餐廳
                 if (ansId === '06') {
                   nextLocationIsReturnPlace = true;
