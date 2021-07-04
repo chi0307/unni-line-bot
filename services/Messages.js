@@ -1,6 +1,6 @@
 const { transformToLineMessage } = require('@chi0307/transform-chatbot-message');
 const { format, addHours, endOfDay, getDay } = require('date-fns');
-const formatTZ = require('date-fns-tz/format');
+const { format: formatTZ, utcToZonedTime } = require('date-fns-tz');
 
 const GooglePhotos = require('./GooglePhotos');
 const GoogleMaps = require('./GoogleMaps');
@@ -16,6 +16,8 @@ const loveTalks = require('../data/loveTalks.json');
 const defaultFoods = require('../data/foods.json');
 const messagesData = require('../data/messagesData.json');
 const calendarCityData = require('../data/calendarCityData.json');
+
+const TIME_ZONE = 'Asia/Taipei';
 
 const unniEatReplyMessages = [
   '污泥想吃「$1」',
@@ -411,8 +413,9 @@ class Messages {
           });
 
           if (futureGasolineData.length > 0) {
-            const startDate = formatTZ(futureGasolineData[0].startDate, 'MM/dd', {
-              timeZone: 'Asia/Taipei',
+            const zoneTime = utcToZonedTime(futureGasolineData[0].startDate, TIME_ZONE);
+            const startDate = formatTZ(zoneTime, 'MM/dd', {
+              timeZone: TIME_ZONE,
             });
             const contents = [
               {
