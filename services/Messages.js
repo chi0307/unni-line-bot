@@ -147,11 +147,15 @@ class Messages {
               const message = {
                 type: 'flex',
                 altText: `${locationsName}${locationName}${description}`,
-                contents: {
+                contents: null,
+              };
+
+              if (weatherData.length > 1) {
+                message.contents = {
                   type: 'carousel',
                   contents: [],
-                },
-              };
+                };
+              }
 
               weatherData.forEach(({ title, weathers }, length) => {
                 const content = {
@@ -243,7 +247,11 @@ class Messages {
                     }
                   }
                 );
-                message.contents.contents.push(content);
+                if (message.contents?.type === 'carousel') {
+                  message.contents.contents.push(content);
+                } else {
+                  message.contents = content;
+                }
               });
 
               if (searchWeather && !['這週', '平日'].includes(dateRangeName)) {
