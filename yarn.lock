@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@chi0307/transform-chatbot-message@^1.0.7":
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/@chi0307/transform-chatbot-message/-/transform-chatbot-message-1.0.7.tgz#d304cb0579f685eb7d4d6c6a147a49fc84b6952e"
-  integrity sha512-vNve3d3LtZBp8RBGQEZHRauSXaEC13+eg3JJe4D7Sz2hpuUX5WSxqZOA/AArPjvxmcmuGE32yuGVnNU9OrCnXw==
+"@chi0307/transform-chatbot-message@^1.0.8":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@chi0307/transform-chatbot-message/-/transform-chatbot-message-1.0.8.tgz#ce0ee1393b8e78b1e6be5cf16ae7848187eb6a1c"
+  integrity sha512-lTRmFV0Y/2uE+4PzGfNw/YQHKbQSRmsNRVe7LN3py9k4r3Ol8hY2g/LAFgsD2qmV1zK2W95fMWJXhAN7bIQBtw==
 
 "@ffprobe-installer/darwin-x64@4.1.0":
   version "4.1.0"
@@ -260,10 +260,10 @@
     "@types/duplexify" "*"
     "@types/node" "*"
 
-"@types/uuid@8.3.0":
-  version "8.3.0"
-  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.3.0.tgz#215c231dff736d5ba92410e6d602050cce7e273f"
-  integrity sha512-eQ9qFW/fhfGJF8WKHGEHZEyVWfZxrT+6CLIJGBcZPfxUh/+BnEj+UCGYMlr9qZuX/2AltsvwrGqp0LhEW8D0zQ==
+"@types/uuid@8.3.1":
+  version "8.3.1"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.3.1.tgz#1a32969cf8f0364b3d8c8af9cc3555b7805df14f"
+  integrity sha512-Y2mHTRAbqfFkpjldbkHGY8JIzRN6XqYRliG8/24FcHm2D2PwW24fl5xMRTVGdrb7iMrwCaIEbLWerGIkXuFWVg==
 
 abort-controller@^3.0.0:
   version "3.0.0"
@@ -465,9 +465,9 @@ debug@2.6.9:
     ms "2.0.0"
 
 debug@4, debug@^4.1.1:
-  version "4.3.1"
-  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.1.tgz#f0d229c505e0c6d8c49ac553d1b13dc183f6b2ee"
-  integrity sha512-doEwdvm4PCeK4K3RQN2ZC2BYUBaxwLARCqZmMjtF8a51J2Rb0xpVloFRnCODwqjpwnAoao4pelN8l3RJdv3gRQ==
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.2.tgz#f0a49c18ac8779e31d4a0c6029dfb76873c7428b"
+  integrity sha512-mOp8wKcvj7XxC78zLgw/ZA+6TSgkoE2C/ienthhRD298T7UNwAg9diBpLRxC0mOezLl4B0xV7M0cCO6P/O0Xhw==
   dependencies:
     ms "2.1.2"
 
@@ -1512,11 +1512,11 @@ uuid@8.3.2, uuid@^8.0.0, uuid@^8.3.2:
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
 
 uuidv4@^6.2.10:
-  version "6.2.10"
-  resolved "https://registry.yarnpkg.com/uuidv4/-/uuidv4-6.2.10.tgz#42fc1c12b6f85ad536c2c5c1e836079d1e15003c"
-  integrity sha512-FMo1exd9l5UvoUPHRR6NrtJ/OJRePh0ca7IhPwBuMNuYRqjtuh8lE3WDxAUvZ4Yss5FbCOsPFjyWJf9lVTEmnw==
+  version "6.2.11"
+  resolved "https://registry.yarnpkg.com/uuidv4/-/uuidv4-6.2.11.tgz#34d5a03324eb38296b87ae523a64233b5286cc27"
+  integrity sha512-OTS4waH9KplrXNADKo+Q1kT9AHWr8DaC0S5F54RQzEwcUaEzBEWQQlJyDUw/u1bkRhJyqkqhLD4M4lbFbV+89g==
   dependencies:
-    "@types/uuid" "8.3.0"
+    "@types/uuid" "8.3.1"
     uuid "8.3.2"
 
 vary@~1.1.2:

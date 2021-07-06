@@ -1,19 +1,110 @@
 [
   {
+    "ansId": "00",
+    "messages": [
+      {
+        "type": "text",
+        "text": "嗨！你好\n我會下面這些技能"
+      },
+      {
+        "type": "carousel",
+        "altText": "污泥技能表",
+        "columns": [
+          {
+            "title": "",
+            "text": "基礎技能",
+            "imageUrl": "",
+            "buttons": [
+              {
+                "type": "postback",
+                "title": "我要吸貓",
+                "data": "ansId=01"
+              },
+              {
+                "type": "postback",
+                "title": "不要講幹話",
+                "data": "ansId=04"
+              },
+              {
+                "type": "postback",
+                "title": "說句情話",
+                "data": "ansId=05"
+              }
+            ]
+          },
+          {
+            "title": "",
+            "text": "進階技能",
+            "imageUrl": "",
+            "buttons": [
+              {
+                "type": "postback",
+                "title": "肚子餓了",
+                "data": "ansId=03"
+              },
+              {
+                "type": "postback",
+                "title": "附近有什麼吃的",
+                "data": "ansId=06"
+              },
+              {
+                "type": "postback",
+                "title": "95 汽油多少錢？",
+                "data": "ansId=07"
+              }
+            ]
+          },
+          {
+            "title": "",
+            "text": "魔法技能",
+            "imageUrl": "",
+            "buttons": [
+              {
+                "type": "postback",
+                "title": "今天台北天氣如何？",
+                "data": "今天台北天氣如何？"
+              },
+              {
+                "type": "postback",
+                "title": "這幾天會不會下雨？",
+                "data": "這幾天會不會下雨？"
+              },
+              {
+                "type": "postback",
+                "title": "這週末會不會冷",
+                "data": "這週末會不會冷"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "ansId": "02-1",
     "messages": [
       {
-        "type": "template",
+        "type": "button",
         "altText": "你要查哪裡的天氣呢？",
-        "template": {
-          "type": "buttons",
-          "text": "你要查哪裡的天氣呢？\n（點擊下方按鈕或輸入地區）",
-          "actions": [
-            { "type": "message", "label": "台北市內湖區", "text": "台北市內湖區" },
-            { "type": "message", "label": "台中市神岡區", "text": "台中市神岡區" },
-            { "type": "message", "label": "台中市豐原區", "text": "台中市豐原區" }
-          ]
-        }
+        "title": "",
+        "text": "你要查哪裡的天氣呢？\n（點擊下方按鈕或輸入地區）",
+        "buttons": [
+          {
+            "type": "postback",
+            "title": "台北市內湖區",
+            "data": "台北市內湖區"
+          },
+          {
+            "type": "postback",
+            "title": "台中市神岡區",
+            "data": "台中市神岡區"
+          },
+          {
+            "type": "postback",
+            "title": "台中市豐原區",
+            "data": "台中市豐原區"
+          }
+        ]
       }
     ]
   }

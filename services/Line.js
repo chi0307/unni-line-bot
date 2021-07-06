@@ -51,6 +51,8 @@ class Line {
         replyToken,
         messages,
       },
+    }).catch((err) => {
+      console.log(err.response.data);
     });
   }
 
