@@ -33,17 +33,16 @@ class LineController {
   index(req, res) {
     if (req.body && req.body.events) {
       for (let event of req.body.events) {
-        const { userId, groupId, roomId } = event.source,
-          replyToken = event.replyToken,
-          sourceType = event.source.type;
+        const { userId, groupId, roomId, type: sourceType } = event.source,
+          { replyToken, type: eventType } = event;
         const sessionId = groupId || roomId || userId;
 
-        if (event.type !== 'message' || event.message.type !== 'location') {
+        if (eventType !== 'message' || event.message.type !== 'location') {
           deleteSearchPlaceSessionId(sessionId);
         }
 
         new Promise(async (resolve, reject) => {
-          if (event.type === 'message') {
+          if (eventType === 'message') {
             const message = event.message;
             switch (message.type) {
               case 'text': {
@@ -67,7 +66,7 @@ class LineController {
                 }
               }
             }
-          } else if (event.type === 'postback') {
+          } else if (eventType === 'postback') {
             const data = event.postback.data;
             if (/^richMenu=/.test(data)) {
               const menuName = data.replace(/^richMenu=/, '');
@@ -80,6 +79,10 @@ class LineController {
               const messages = await sendMessageAndReturn({ inputText: data, userId, sessionId });
               return resolve(messages);
             }
+          } else if (eventType === 'follow') {
+            const ansId = '00';
+            const messages = await sendAnsIdAndReturn({ ansId, userId, sessionId });
+            return resolve(messages);
           }
           reject();
         })
