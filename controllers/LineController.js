@@ -1,9 +1,17 @@
 const SttAndTts = require('../services/SttAndTts');
 const Line = require('../services/Line');
 const Messages = require('../services/Messages');
+const MessageApis = require('../services/MessageApis');
 const GoogleVision = require('../services/GoogleVision');
 
+/**
+ * 紀錄下一步驟要撈附近餐廳的 sessionId 清單
+ */
 const searchPlaceSessionIds = [];
+/**
+ * 將 sessionId 從準備撈附近餐廳清單中移除
+ * @param {*} sessionId
+ */
 function deleteSearchPlaceSessionId(sessionId) {
   if (searchPlaceSessionIds.includes(sessionId)) {
     searchPlaceSessionIds.splice(
@@ -21,11 +29,11 @@ async function sendMessageAndReturn({ inputText, userId, sessionId }) {
   return messages;
 }
 async function sendAnsIdAndReturn({ ansId, userId, sessionId }) {
-  const messages = await Messages.ansIdReturnMessages({ ansId, userId });
   // ansId: 06 是查詢附近的餐廳
   if (ansId === '06') {
     searchPlaceSessionIds.push(sessionId);
   }
+  const messages = await Messages.ansIdReturnMessages({ ansId, userId });
   return messages;
 }
 
@@ -61,7 +69,7 @@ class LineController {
                 if (searchPlaceSessionIds.includes(sessionId)) {
                   deleteSearchPlaceSessionId(sessionId);
                   const location = `${message.latitude},${message.longitude}`;
-                  const messages = await Messages.getReturnPlace(location, userId);
+                  const messages = await MessageApis.getNearbyFood({ location, userId });
                   return resolve(messages);
                 }
               }

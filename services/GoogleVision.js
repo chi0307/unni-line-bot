@@ -2,6 +2,7 @@ const vision = require('@google-cloud/vision');
 
 const Line = require('./Line');
 const Common = require('./Common');
+const MessageApis = require('./MessageApis');
 const GooglePhotos = require('./GooglePhotos');
 const client = new vision.ImageAnnotatorClient();
 
@@ -12,9 +13,7 @@ class GoogleVision {
 
     try {
       await Line.downloadLineContent(imageMessageId, filePath);
-
       messages = await this.detectingLandmarks(filePath);
-
       // 檢查確認不是地標後改偵測標籤
       if (messages.length === 0) {
         messages = await this.detectinglabels(filePath);
@@ -58,14 +57,13 @@ class GoogleVision {
    * @returns messages
    */
   async detectinglabels(filePath) {
-    const messages = [];
+    let messages = [];
 
     const [result] = await client.labelDetection(filePath);
     const labels = result.labelAnnotations;
     const haveCat = labels.some((label) => label.description === 'Cat');
     if (haveCat) {
-      const unniImage = await Common.getUnniImage();
-      messages.push(unniImage);
+      messages = await MessageApis.getUnniImage();
     }
 
     return messages;

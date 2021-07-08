@@ -1,8 +1,12 @@
 const fs = require('fs');
 
-const GooglePhotos = require('./GooglePhotos');
-
 class Common {
+  constructor() {
+    this.randomList = this.randomList.bind(this);
+    this.deleteFile = this.deleteFile.bind(this);
+    this.cloneObject = this.cloneObject.bind(this);
+  }
+
   /**
    * 輸入陣列，亂數回傳其中一個元素
    * @param {Array} list
@@ -22,20 +26,16 @@ class Common {
   }
 
   /**
-   * 從 google 相簿撈污泥的照片
-   * @returns message
+   * 深層拷貝 Object、Array
+   * @param {*} obj
+   * @returns
    */
-  async getUnniImage() {
-    let images = await GooglePhotos.getImages();
-    let image = this.randomList(images);
-
-    const message = {
-      type: 'image',
-      originalContentUrl: image,
-      previewImageUrl: image,
-    };
-
-    return message;
+  cloneObject(obj) {
+    if (typeof obj === 'object') {
+      return JSON.parse(JSON.stringify(obj));
+    } else {
+      return obj;
+    }
   }
 }
 
