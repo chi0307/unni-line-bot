@@ -20,8 +20,8 @@ function deleteSearchPlaceSessionId(sessionId) {
     );
   }
 }
-async function sendMessageAndReturn({ inputText, userId, sessionId }) {
-  const { ansId, messages } = await Messages.getReturnMessages({ inputText, userId, sessionId });
+async function sendMessageAndReturn({ inputText, userId, sessionId, sourceType }) {
+  const { ansId, messages } = await Messages.getReturnMessages({ inputText, userId, sessionId, sourceType });
   // ansId: 06 是查詢附近的餐廳
   if (ansId === '06') {
     searchPlaceSessionIds.push(sessionId);
@@ -55,7 +55,7 @@ class LineController {
             switch (message.type) {
               case 'text': {
                 const inputText = message.text;
-                const messages = await sendMessageAndReturn({ inputText, userId, sessionId });
+                const messages = await sendMessageAndReturn({ inputText, userId, sessionId, sourceType });
                 return resolve(messages);
               }
 
@@ -84,7 +84,7 @@ class LineController {
               const messages = await sendAnsIdAndReturn({ ansId, userId, sessionId });
               return resolve(messages);
             } else {
-              const messages = await sendMessageAndReturn({ inputText: data, userId, sessionId });
+              const messages = await sendMessageAndReturn({ inputText: data, userId, sessionId, sourceType });
               return resolve(messages);
             }
           } else if (eventType === 'follow') {

@@ -42,7 +42,7 @@ class Messages {
    * @param {string} param0.sessionId 給 dialogflow 用的 ID
    * @returns {object} { ansId, LineMessages }
    */
-  async getReturnMessages({ inputText, userId, sessionId }) {
+  async getReturnMessages({ inputText, userId, sessionId, sourceType }) {
     execution();
     const dialogFlowResult = await GoogleDialogFlow.message(inputText, sessionId);
     const { fulfillmentMessages, parameters, intentDetectionConfidence } = dialogFlowResult;
@@ -56,6 +56,11 @@ class Messages {
     ) {
       // 流程未結束，會回傳進一步去確認問題
       ansId = fulfillmentMessages[0].text.text[0];
+    }
+
+    // 如果是在群組的話就不回傳「技能選單」
+    if (ansId === '00' && sourceType === 'group') {
+      return { ansId: null, messages: [] };
     }
 
     const messages = await this.ansIdReturnMessages({ ansId, userId }, { parameters });
