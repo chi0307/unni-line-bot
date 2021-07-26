@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@chi0307/transform-chatbot-message@^1.0.8":
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/@chi0307/transform-chatbot-message/-/transform-chatbot-message-1.0.8.tgz#ce0ee1393b8e78b1e6be5cf16ae7848187eb6a1c"
-  integrity sha512-lTRmFV0Y/2uE+4PzGfNw/YQHKbQSRmsNRVe7LN3py9k4r3Ol8hY2g/LAFgsD2qmV1zK2W95fMWJXhAN7bIQBtw==
+"@chi0307/transform-chatbot-message@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@chi0307/transform-chatbot-message/-/transform-chatbot-message-1.1.2.tgz#31260b95cd1349b9de59fd143cec335ad85e4246"
+  integrity sha512-qtlCxpHPEC2tXAM14DgFwMSUk+z6OghgMS6WR5YQshrOep+q4zXeTwIp7CV/eVZNAaCu45pUtZsN0tyS6vGcsQ==
 
 "@ffprobe-installer/darwin-x64@4.1.0":
   version "4.1.0"

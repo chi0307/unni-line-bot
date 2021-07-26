@@ -5,9 +5,21 @@ const Common = require('./Common');
 const MessageApis = require('./MessageApis');
 const GooglePhotos = require('./GooglePhotos');
 const client = new vision.ImageAnnotatorClient();
+const lockSessionIds = [];
 
 class GoogleVision {
-  async imageIdentify(imageMessageId) {
+  async imageIdentify(imageMessageId, sessionId) {
+    if (lockSessionIds.includes(sessionId)) {
+      return;
+    }
+    lockSessionIds.push(sessionId);
+    setTimeout(() => {
+      const index = lockSessionIds.findIndex((element) => element === sessionId);
+      if (index >= 0) {
+        lockSessionIds.splice(index, 1);
+      }
+    }, 60000);
+
     let messages = [];
     const filePath = `./tmp/${imageMessageId}.jpg`;
 

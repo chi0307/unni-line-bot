@@ -61,7 +61,7 @@ class LineController {
 
               case 'image': {
                 const imageMessageId = message.id;
-                const messages = await GoogleVision.imageIdentify(imageMessageId);
+                const messages = await GoogleVision.imageIdentify(imageMessageId, sessionId);
                 return resolve(messages);
               }
 
