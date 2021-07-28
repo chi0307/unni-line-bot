@@ -109,7 +109,7 @@ class Messages {
    * @returns {object}
    */
   async getAnswerPackage(ansId) {
-    const answerPackages = await Mongo.search({ collection: 'answerPakage', filter: { ansId } });
+    const answerPackages = await Mongo.search({ collection: 'answerPackage', filter: { ansId } });
     return answerPackages[0];
   }
 }
