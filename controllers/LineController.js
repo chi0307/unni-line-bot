@@ -9,17 +9,28 @@ const GoogleVision = require('../services/GoogleVision');
  */
 const searchPlaceSessionIds = [];
 /**
- * 將 sessionId 從準備撈附近餐廳清單中移除
- * @param {*} sessionId
+ * 鎖定圖片識別的 sessionId
  */
-function deleteSearchPlaceSessionId(sessionId) {
-  if (searchPlaceSessionIds.includes(sessionId)) {
-    searchPlaceSessionIds.splice(
-      searchPlaceSessionIds.find((id) => id === sessionId),
-      1
-    );
+const imageIdentifyLockSessionIds = [];
+/**
+ * 處理移除鎖定的 sessionId
+ * @param {Array<string>} list 輸入陣列的變數
+ * @param {string} sessionId
+ */
+function deleteSesionId(list, sessionId) {
+  if (list.includes(sessionId)) {
+    const index = list.findIndex((id) => id === sessionId);
+    list.splice(index, 1);
   }
 }
+/**
+ * 訊息判斷與回傳
+ * @param {string} param0.inputText 輸入訊息
+ * @param {string} param0.userId
+ * @param {string} param0.sessionId
+ * @param {string} param0.sourceType user | group | room
+ * @returns {Array} messages
+ */
 async function sendMessageAndReturn({ inputText, userId, sessionId, sourceType }) {
   const { ansId, messages } = await Messages.getReturnMessages({ inputText, userId, sessionId, sourceType });
   // ansId: 06 是查詢附近的餐廳
@@ -28,6 +39,13 @@ async function sendMessageAndReturn({ inputText, userId, sessionId, sourceType }
   }
   return messages;
 }
+/**
+ * 輸入 ansId 回傳
+ * @param {string} param0.ansId
+ * @param {string} param0.userId
+ * @param {string} param0.sessionId
+ * @returns {Array} messages
+ */
 async function sendAnsIdAndReturn({ ansId, userId, sessionId }) {
   // ansId: 06 是查詢附近的餐廳
   if (ansId === '06') {
@@ -46,7 +64,7 @@ class LineController {
         const sessionId = groupId || roomId || userId;
 
         if (eventType !== 'message' || event.message.type !== 'location') {
-          deleteSearchPlaceSessionId(sessionId);
+          deleteSesionId(searchPlaceSessionIds, sessionId);
         }
 
         new Promise(async (resolve, reject) => {
@@ -60,6 +78,14 @@ class LineController {
               }
 
               case 'image': {
+                if (imageIdentifyLockSessionIds.includes(sessionId)) {
+                  return reject();
+                }
+                imageIdentifyLockSessionIds.push(sessionId);
+                setTimeout(() => {
+                  deleteSesionId(imageIdentifyLockSessionIds, sessionId);
+                }, 60000);
+
                 const imageMessageId = message.id;
                 const messages = await GoogleVision.imageIdentify(imageMessageId, sessionId);
                 return resolve(messages);
@@ -67,7 +93,7 @@ class LineController {
 
               case 'location': {
                 if (searchPlaceSessionIds.includes(sessionId)) {
-                  deleteSearchPlaceSessionId(sessionId);
+                  deleteSesionId(searchPlaceSessionIds, sessionId);
                   const location = `${message.latitude},${message.longitude}`;
                   const messages = await MessageApis.getNearbyFood({ location, userId });
                   return resolve(messages);
@@ -101,7 +127,10 @@ class LineController {
               return Promise.reject();
             }
           })
-          .catch(() => {
+          .catch((err) => {
+            if (err) {
+              console.error(err);
+            }
             console.log('Other Event');
             console.log(JSON.stringify(event, null, 2));
           });
