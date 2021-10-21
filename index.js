@@ -27,9 +27,10 @@ app.listen(port, () => {
 });
 
 // 確認 google 認證是否失效
-const Line = require('./services/Line');
-const GoogleCloud = require('./services/GoogleCloud');
 setTimeout(async () => {
+  const GoogleCloud = require('./services/GoogleCloud');
+  const Line = require('./services/Line');
+
   let url = await GoogleCloud.checkAccessToken();
   if (url) {
     Line.sendJunchiMessage({

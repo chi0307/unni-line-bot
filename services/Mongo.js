@@ -2,6 +2,7 @@ const MongoClient = require('mongodb').MongoClient;
 
 const { MONGO_URI } = process.env;
 const MONGO_DB = 'bot';
+const MONGO_PREFIX = 'unniLineBot';
 let client;
 
 class Mongo {
@@ -19,7 +20,7 @@ class Mongo {
     return new Promise((resolve, reject) => {
       client
         .db(MONGO_DB)
-        .collection(collection)
+        .collection(`${MONGO_PREFIX}/${collection}`)
         .find(filter)
         .toArray(function (err, items) {
           if (err) reject(err);
@@ -37,7 +38,7 @@ class Mongo {
     return new Promise((resolve, reject) => {
       client
         .db(MONGO_DB)
-        .collection(collection)
+        .collection(`${MONGO_PREFIX}/${collection}`)
         .insertOne(doc, (err, result) => {
           if (err) reject(err);
           resolve(result);
@@ -55,7 +56,7 @@ class Mongo {
     return new Promise((resolve, reject) => {
       client
         .db(MONGO_DB)
-        .collection(collection)
+        .collection(`${MONGO_PREFIX}/${collection}`)
         .replaceOne(filter, doc, (err, result) => {
           if (err) reject(err);
           resolve(result);
@@ -73,7 +74,7 @@ class Mongo {
     return new Promise((resolve, reject) => {
       client
         .db(MONGO_DB)
-        .collection(collection)
+        .collection(`${MONGO_PREFIX}/${collection}`)
         .deleteMany(filter, (err, result) => {
           if (err) reject(err);
           resolve(result);
