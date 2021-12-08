@@ -27,6 +27,10 @@ function fixedExecution() {
 }
 const execution = fixedExecution();
 execution();
+/**
+ * Array<{sessionId: string, ansId: string}>
+ */
+const LockSessionList = [];
 
 class Messages {
   constructor() {
@@ -63,6 +67,22 @@ class Messages {
       return { ansId: null, messages: [] };
     }
 
+    // 避免卡在裡面重複發送一樣的回答
+    if (/-/.test(ansId)) {
+      const index = LockSessionList.findIndex((item) => item.sessionId === sessionId);
+      const lockData = index >= 0 ? LockSessionList[index] : null;
+      if (lockData && lockData.ansId === ansId) {
+        return { ansId, messages: [] };
+      } else if (lockData && lockData.ansId !== ansId) {
+        LockSessionList.splice(index, 1);
+      }
+      LockSessionList.push({ ansId, sessionId });
+    } else {
+      const index = LockSessionList.findIndex((item) => item.sessionId === sessionId);
+      if (index >= 0) {
+        LockSessionList.splice(index, 1);
+      }
+    }
     const messages = await this.ansIdReturnMessages({ ansId, userId }, { parameters });
     return { ansId, messages };
   }
